@@ -1,5 +1,6 @@
 package ies.belgrano.turnos.repository;
 
+import ies.belgrano.turnos.TurnosApplication;
 import ies.belgrano.turnos.model.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,13 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.test.context.TestPropertySource;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(classes = TurnosApplication.class)
+@TestPropertySource(properties = "spring.sql.init.mode=never")
 @Transactional
 class TurnoRepositoryTest {
 

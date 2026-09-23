@@ -37,14 +37,18 @@ INSERT INTO pacientes (id, nombre, apellido, dni, email, telefono, fecha_nacimie
 INSERT INTO pacientes (id, nombre, apellido, dni, email, telefono, fecha_nacimiento, obra_social_id, tutor_id) VALUES (3, 'Mateo', 'González', '55333444', 'tutor.juan@gmail.com', '2614001111', '2018-08-10', 1, 1);
 
 -- 7. TURNOS INICIALES DE PRUEBA
-INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion) 
+INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
 VALUES (1, '2026-10-05 09:00:00', 'DISPONIBLE', NULL, 1, 1, 1, NULL, 'Turno libre para agendar', CURRENT_TIMESTAMP);
 
-INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion) 
-VALUES (2, '2026-10-05 10:30:00', 'RESERVADO', 1, 1, 1, 1, 'Control hipertensión arterial', 'Paciente registrado con OSEP', CURRENT_TIMESTAMP);
+INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
+VALUES (2, '2026-10-05 10:30:00', 'DISPONIBLE', NULL, 1, 1, 1, NULL, 'Turno libre para agendar', CURRENT_TIMESTAMP);
 
-INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion) 
-VALUES (3, '2026-10-06 11:00:00', 'DISPONIBLE', NULL, 2, 2, 2, NULL, 'Consulta pediátrica de rutina', CURRENT_TIMESTAMP);
+INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
+VALUES (3, '2026-10-05 11:30:00', 'RESERVADO', 1, 1, 1, 1, 'Control hipertensión arterial', 'Paciente registrado con OSEP', CURRENT_TIMESTAMP);
+
+INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
+VALUES (4, '2026-10-06 10:00:00', 'DISPONIBLE', NULL, 2, 2, 2, NULL, 'Turno libre pediatría', CURRENT_TIMESTAMP);
+
 
 -- REINICIO DE SECUENCIAS H2 PARA PREVENIR COLISIONES DE ID
 ALTER TABLE obras_sociales ALTER COLUMN id RESTART WITH 10;

@@ -98,6 +98,7 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     @Transactional
     public TurnoResponseDTO cancelarTurno(Long id) {
+        // TODO: Pendiente de validación de seguridad (JWT/Roles). Solo el paciente dueño del turno o un usuario con rol jerárquico (Médico/Admin) podrá cancelar este turno
         Turno turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el turno con ID: " + id));
 

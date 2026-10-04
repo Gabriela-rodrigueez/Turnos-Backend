@@ -1,8 +1,16 @@
 package ies.belgrano.turnos.controller;
 
-import ies.belgrano.turnos.TurnosApplication;
-import ies.belgrano.turnos.model.*;
-import ies.belgrano.turnos.repository.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,12 +23,24 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import ies.belgrano.turnos.TurnosApplication;
+import ies.belgrano.turnos.model.Especialidad;
+import ies.belgrano.turnos.model.EstadoTurno;
+import ies.belgrano.turnos.model.Paciente;
+import ies.belgrano.turnos.model.Profesional;
+import ies.belgrano.turnos.model.Rol;
+import ies.belgrano.turnos.model.Sede;
+import ies.belgrano.turnos.model.Turno;
+import ies.belgrano.turnos.model.Usuario;
+import ies.belgrano.turnos.repository.EspecialidadRepository;
+import ies.belgrano.turnos.repository.PacienteRepository;
+import ies.belgrano.turnos.repository.ProfesionalRepository;
+import ies.belgrano.turnos.repository.SedeRepository;
+import ies.belgrano.turnos.repository.TurnoRepository;
+import ies.belgrano.turnos.repository.UsuarioRepository;
+import ies.belgrano.turnos.security.JwtService;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @SpringBootTest(classes = TurnosApplication.class)
 @TestPropertySource(properties = "spring.sql.init.mode=never")
@@ -29,6 +49,9 @@ class PacienteControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     private PacienteRepository pacienteRepository;
@@ -45,13 +68,21 @@ class PacienteControllerTest {
     @Autowired
     private TurnoRepository turnoRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     private MockMvc mockMvc;
     private Paciente pacienteConTurnos;
     private Paciente pacienteSinTurnos;
+    private String tokenPacienteConTurnos;
+    private String tokenPacienteSinTurnos;
+    private String tokenAdmin;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply(springSecurity())
+                .build();
 
         pacienteConTurnos = pacienteRepository.save(new Paciente(null, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null));
         pacienteSinTurnos = pacienteRepository.save(new Paciente(null, "Lucía", "Martínez", "40222333", "lucia@hotmail.com", "2614002222", LocalDate.of(1997, 11, 20), null));
@@ -62,12 +93,27 @@ class PacienteControllerTest {
 
         Turno turno = new Turno(null, LocalDateTime.now().plusDays(2), EstadoTurno.RESERVADO, pacienteConTurnos, profesional, especialidad, sede, "Control periódico");
         turnoRepository.save(turno);
+
+        Usuario usuario1 = new Usuario("juan@gmail.com", "hash", Rol.PACIENTE);
+        usuario1.setPaciente(pacienteConTurnos);
+        usuarioRepository.save(usuario1);
+        tokenPacienteConTurnos = jwtService.generarToken(usuario1);
+
+        Usuario usuario2 = new Usuario("lucia@hotmail.com", "hash", Rol.PACIENTE);
+        usuario2.setPaciente(pacienteSinTurnos);
+        usuarioRepository.save(usuario2);
+        tokenPacienteSinTurnos = jwtService.generarToken(usuario2);
+
+        Usuario admin = new Usuario("admin@hospital.com", "hash", Rol.ADMINISTRADOR);
+        usuarioRepository.save(admin);
+        tokenAdmin = jwtService.generarToken(admin);
     }
 
     @Test
     @DisplayName("Caso 200 OK: Si el paciente tiene turnos registrados, retorna 200 OK con la lista de DTOs")
     void testObtenerTurnos_ConTurnos_Retorna200Ok() throws Exception {
         mockMvc.perform(get("/api/v1/pacientes/{pacienteId}/turnos", pacienteConTurnos.getId())
+                        .header("Authorization", "Bearer " + tokenPacienteConTurnos)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -81,6 +127,7 @@ class PacienteControllerTest {
     @DisplayName("Caso 204 No Content: Si el paciente existe pero no tiene turnos agendados, retorna 204 No Content")
     void testObtenerTurnos_SinTurnos_Retorna204NoContent() throws Exception {
         mockMvc.perform(get("/api/v1/pacientes/{pacienteId}/turnos", pacienteSinTurnos.getId())
+                        .header("Authorization", "Bearer " + tokenPacienteSinTurnos)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
@@ -92,6 +139,7 @@ class PacienteControllerTest {
         Long pacienteIdInexistente = 99999L;
 
         mockMvc.perform(get("/api/v1/pacientes/{pacienteId}/turnos", pacienteIdInexistente)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)))

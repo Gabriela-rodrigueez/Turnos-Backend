@@ -1,29 +1,48 @@
 package ies.belgrano.turnos.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import ies.belgrano.turnos.TurnosApplication;
-import ies.belgrano.turnos.dto.ReservaTurnoRequestDTO;
-import ies.belgrano.turnos.model.*;
-import ies.belgrano.turnos.repository.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import org.springframework.test.context.TestPropertySource;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import ies.belgrano.turnos.TurnosApplication;
+import ies.belgrano.turnos.dto.ReservaTurnoRequestDTO;
+import ies.belgrano.turnos.model.Especialidad;
+import ies.belgrano.turnos.model.Paciente;
+import ies.belgrano.turnos.model.Profesional;
+import ies.belgrano.turnos.model.Rol;
+import ies.belgrano.turnos.model.Sede;
+import ies.belgrano.turnos.model.Usuario;
+import ies.belgrano.turnos.repository.EspecialidadRepository;
+import ies.belgrano.turnos.repository.PacienteRepository;
+import ies.belgrano.turnos.repository.ProfesionalRepository;
+import ies.belgrano.turnos.repository.SedeRepository;
+import ies.belgrano.turnos.repository.UsuarioRepository;
+import ies.belgrano.turnos.security.JwtService;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @SpringBootTest(classes = TurnosApplication.class)
 @TestPropertySource(properties = "spring.sql.init.mode=never")
@@ -32,6 +51,9 @@ class TurnoControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @Autowired
+    private JwtService jwtService;
 
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
@@ -48,23 +70,31 @@ class TurnoControllerTest {
     private SedeRepository sedeRepository;
 
     @Autowired
-    private TurnoRepository turnoRepository;
+    private UsuarioRepository usuarioRepository;
 
     private MockMvc mockMvc;
     private Paciente paciente;
     private Profesional profesional;
     private Especialidad especialidad;
     private Sede sede;
+    private String tokenPaciente;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply(springSecurity())
+                .build();
 
         paciente = pacienteRepository.save(new Paciente(null, "Carlos", "Gómez", "30111222", "carlos@gmail.com", "261444333", LocalDate.of(1985, 3, 20), null));
         especialidad = especialidadRepository.save(new Especialidad("Cardiología", "Estudio del corazón"));
         profesional = profesionalRepository.save(new Profesional(null, "Roberto", "Pérez", "20999888", "M-12345", "roberto@hospital.com", "261555666"));
         profesional.getEspecialidades().add(especialidad);
         sede = sedeRepository.save(new Sede("Hospital Notti", "Bandera de los Andes 2603", "2614132000", "Guaymallén"));
+
+        Usuario usuario = new Usuario("carlos@gmail.com", "hash", Rol.PACIENTE);
+        usuario.setPaciente(paciente);
+        usuarioRepository.save(usuario);
+        tokenPaciente = jwtService.generarToken(usuario);
     }
 
     @Test
@@ -83,6 +113,7 @@ class TurnoControllerTest {
 
         // 1. Reservar Turno (POST 201)
         String responseContent = mockMvc.perform(post("/api/v1/turnos/reserva")
+                        .header("Authorization", "Bearer " + tokenPaciente)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -96,7 +127,7 @@ class TurnoControllerTest {
 
         Long turnoId = objectMapper.readTree(responseContent).get("id").asLong();
 
-        // 2. Consultar Disponibilidad (GET 200)
+        // 2. Consultar Disponibilidad (GET 200 - es @Publico)
         mockMvc.perform(get("/api/v1/turnos/disponibilidad")
                         .param("especialidadId", especialidad.getId().toString())
                         .param("profesionalId", profesional.getId().toString())
@@ -107,7 +138,8 @@ class TurnoControllerTest {
                 .andExpect(jsonPath("$[0].id", is(turnoId.intValue())));
 
         // 3. Cancelar Turno (PATCH 200)
-        mockMvc.perform(patch("/api/v1/turnos/" + turnoId + "/cancelar"))
+        mockMvc.perform(patch("/api/v1/turnos/" + turnoId + "/cancelar")
+                        .header("Authorization", "Bearer " + tokenPaciente))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(turnoId.intValue())))
                 .andExpect(jsonPath("$.estado", is("CANCELADO")));
@@ -128,6 +160,7 @@ class TurnoControllerTest {
         );
 
         mockMvc.perform(post("/api/v1/turnos/reserva")
+                        .header("Authorization", "Bearer " + tokenPaciente)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -153,6 +186,7 @@ class TurnoControllerTest {
 
         // Primera reserva exitosa
         mockMvc.perform(post("/api/v1/turnos/reserva")
+                        .header("Authorization", "Bearer " + tokenPaciente)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request1)))
                 .andExpect(status().isCreated());
@@ -168,6 +202,7 @@ class TurnoControllerTest {
         );
 
         mockMvc.perform(post("/api/v1/turnos/reserva")
+                        .header("Authorization", "Bearer " + tokenPaciente)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request2)))
                 .andExpect(status().isConflict())

@@ -123,11 +123,11 @@ public class TurnoServiceImpl implements TurnoService {
         // Validación de propiedad: Pacientes y Médicos solo pueden cancelar sus propios turnos
         SecurityUtils.getCurrentUser().ifPresent(user -> {
             if (user.esPaciente()) {
-                if (user.getPacienteId() == null || !turno.getPaciente().getId().equals(user.getPacienteId())) {
+                if (user.getPacienteId() == null || turno.getPaciente() == null || !user.getPacienteId().equals(turno.getPaciente().getId())) {
                     throw new AccessDeniedException("No tiene permiso para cancelar este turno.");
                 }
             } else if (user.esMedico()) {
-                if (user.getProfesionalId() == null || !turno.getProfesional().getId().equals(user.getProfesionalId())) {
+                if (user.getProfesionalId() == null || turno.getProfesional() == null || !user.getProfesionalId().equals(turno.getProfesional().getId())) {
                     throw new AccessDeniedException("No tiene permiso para cancelar un turno asignado a otro profesional.");
                 }
             }

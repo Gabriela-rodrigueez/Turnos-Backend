@@ -91,10 +91,14 @@ public class SecurityConfig {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
+            String mensaje = (accessDeniedException != null && accessDeniedException.getMessage() != null && !accessDeniedException.getMessage().isBlank() && !"Access is denied".equalsIgnoreCase(accessDeniedException.getMessage()))
+                    ? accessDeniedException.getMessage()
+                    : "Acceso prohibido: Tu rol no posee los permisos requeridos para acceder a este recurso.";
+
             ErrorResponseDTO error = new ErrorResponseDTO(
                     HttpStatus.FORBIDDEN.value(),
                     "Acceso Denegado",
-                    "Acceso prohibido: Tu rol no posee los permisos requeridos para acceder a este recurso."
+                    mensaje
             );
 
             response.getWriter().write(objectMapper.writeValueAsString(error));

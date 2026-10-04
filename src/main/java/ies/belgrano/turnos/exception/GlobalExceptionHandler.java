@@ -71,10 +71,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ResponseEntity<ErrorResponseDTO> handleSpringAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        String mensaje = (ex.getMessage() != null && !ex.getMessage().isBlank() && !"Access is denied".equalsIgnoreCase(ex.getMessage()))
+                ? ex.getMessage()
+                : "Acceso prohibido: Tu rol no posee los permisos requeridos para acceder a este recurso.";
+
         ErrorResponseDTO error = new ErrorResponseDTO(
                 HttpStatus.FORBIDDEN.value(),
                 "Acceso Denegado",
-                "Acceso prohibido: Tu rol no posee los permisos requeridos para acceder a este recurso."
+                mensaje
         );
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }

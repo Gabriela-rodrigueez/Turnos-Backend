@@ -43,12 +43,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     Claims claims = jwtService.obtenerClaims(token);
                     Rol rolUsuario = jwtService.extraerRol(token);
                     Long usuarioId = jwtService.extraerUsuarioId(token);
+                    Long pacienteId = jwtService.extraerPacienteId(token);
+                    Long profesionalId = jwtService.extraerProfesionalId(token);
 
                     if (rolUsuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        AuthenticatedUser userPrincipal = new AuthenticatedUser(
+                                usuarioId,
+                                claims.getSubject(),
+                                rolUsuario,
+                                pacienteId,
+                                profesionalId
+                        );
+
                         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(rolUsuario.name());
 
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                claims.getSubject(),
+                                userPrincipal,
                                 null,
                                 List.of(authority)
                         );

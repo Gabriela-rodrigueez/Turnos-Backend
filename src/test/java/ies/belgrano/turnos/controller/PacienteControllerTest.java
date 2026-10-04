@@ -37,6 +37,7 @@ import ies.belgrano.turnos.repository.PacienteRepository;
 import ies.belgrano.turnos.repository.ProfesionalRepository;
 import ies.belgrano.turnos.repository.SedeRepository;
 import ies.belgrano.turnos.repository.TurnoRepository;
+import ies.belgrano.turnos.repository.UsuarioRepository;
 import ies.belgrano.turnos.security.JwtService;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -67,10 +68,15 @@ class PacienteControllerTest {
     @Autowired
     private TurnoRepository turnoRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     private MockMvc mockMvc;
     private Paciente pacienteConTurnos;
     private Paciente pacienteSinTurnos;
-    private String tokenPaciente;
+    private String tokenPacienteConTurnos;
+    private String tokenPacienteSinTurnos;
+    private String tokenAdmin;
 
     @BeforeEach
     void setUp() {
@@ -88,17 +94,26 @@ class PacienteControllerTest {
         Turno turno = new Turno(null, LocalDateTime.now().plusDays(2), EstadoTurno.RESERVADO, pacienteConTurnos, profesional, especialidad, sede, "Control periódico");
         turnoRepository.save(turno);
 
-        Usuario usuario = new Usuario("juan@gmail.com", "hash", Rol.PACIENTE);
-        usuario.setId(100L);
-        usuario.setPaciente(pacienteConTurnos);
-        tokenPaciente = jwtService.generarToken(usuario);
+        Usuario usuario1 = new Usuario("juan@gmail.com", "hash", Rol.PACIENTE);
+        usuario1.setPaciente(pacienteConTurnos);
+        usuarioRepository.save(usuario1);
+        tokenPacienteConTurnos = jwtService.generarToken(usuario1);
+
+        Usuario usuario2 = new Usuario("lucia@hotmail.com", "hash", Rol.PACIENTE);
+        usuario2.setPaciente(pacienteSinTurnos);
+        usuarioRepository.save(usuario2);
+        tokenPacienteSinTurnos = jwtService.generarToken(usuario2);
+
+        Usuario admin = new Usuario("admin@hospital.com", "hash", Rol.ADMINISTRADOR);
+        usuarioRepository.save(admin);
+        tokenAdmin = jwtService.generarToken(admin);
     }
 
     @Test
     @DisplayName("Caso 200 OK: Si el paciente tiene turnos registrados, retorna 200 OK con la lista de DTOs")
     void testObtenerTurnos_ConTurnos_Retorna200Ok() throws Exception {
         mockMvc.perform(get("/api/v1/pacientes/{pacienteId}/turnos", pacienteConTurnos.getId())
-                        .header("Authorization", "Bearer " + tokenPaciente)
+                        .header("Authorization", "Bearer " + tokenPacienteConTurnos)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -112,7 +127,7 @@ class PacienteControllerTest {
     @DisplayName("Caso 204 No Content: Si el paciente existe pero no tiene turnos agendados, retorna 204 No Content")
     void testObtenerTurnos_SinTurnos_Retorna204NoContent() throws Exception {
         mockMvc.perform(get("/api/v1/pacientes/{pacienteId}/turnos", pacienteSinTurnos.getId())
-                        .header("Authorization", "Bearer " + tokenPaciente)
+                        .header("Authorization", "Bearer " + tokenPacienteSinTurnos)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
@@ -124,7 +139,7 @@ class PacienteControllerTest {
         Long pacienteIdInexistente = 99999L;
 
         mockMvc.perform(get("/api/v1/pacientes/{pacienteId}/turnos", pacienteIdInexistente)
-                        .header("Authorization", "Bearer " + tokenPaciente)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)))

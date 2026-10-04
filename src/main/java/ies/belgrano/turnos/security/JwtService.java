@@ -71,6 +71,16 @@ public class JwtService {
         return Rol.valueOf(rolStr);
     }
 
+    public Long extraerPacienteId(String token) {
+        Number id = obtenerClaims(token).get("pacienteId", Number.class);
+        return id != null ? id.longValue() : null;
+    }
+
+    public Long extraerProfesionalId(String token) {
+        Number id = obtenerClaims(token).get("profesionalId", Number.class);
+        return id != null ? id.longValue() : null;
+    }
+
     public boolean validarToken(String token) {
         try {
             Claims claims = obtenerClaims(token);

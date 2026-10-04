@@ -1,19 +1,31 @@
 package ies.belgrano.turnos.service;
 
-import ies.belgrano.turnos.dto.ReservaTurnoRequestDTO;
-import ies.belgrano.turnos.dto.TurnoResponseDTO;
-import ies.belgrano.turnos.exception.ConflictoHorarioException;
-import ies.belgrano.turnos.exception.RecursoNoEncontradoException;
-import ies.belgrano.turnos.model.*;
-import ies.belgrano.turnos.repository.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ies.belgrano.turnos.dto.ReservaTurnoRequestDTO;
+import ies.belgrano.turnos.dto.TurnoResponseDTO;
+import ies.belgrano.turnos.exception.ConflictoHorarioException;
+import ies.belgrano.turnos.exception.RecursoNoEncontradoException;
+import ies.belgrano.turnos.model.Especialidad;
+import ies.belgrano.turnos.model.EstadoTurno;
+import ies.belgrano.turnos.model.Paciente;
+import ies.belgrano.turnos.model.Profesional;
+import ies.belgrano.turnos.model.Sede;
+import ies.belgrano.turnos.model.Turno;
+import ies.belgrano.turnos.repository.EspecialidadRepository;
+import ies.belgrano.turnos.repository.PacienteRepository;
+import ies.belgrano.turnos.repository.ProfesionalRepository;
+import ies.belgrano.turnos.repository.SedeRepository;
+import ies.belgrano.turnos.repository.TurnoRepository;
+import ies.belgrano.turnos.security.SecurityUtils;
 
 @Service
 public class TurnoServiceImpl implements TurnoService {
@@ -59,6 +71,13 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     @Transactional
     public TurnoResponseDTO reservarTurno(ReservaTurnoRequestDTO request) {
+        // Regla de Negocio: Si el usuario autenticado posee rol PACIENTE, se asigna su propio pacienteId (pisando cualquier ID enviado)
+        SecurityUtils.getCurrentUser().ifPresent(user -> {
+            if (user.esPaciente() && user.getPacienteId() != null) {
+                request.setPacienteId(user.getPacienteId());
+            }
+        });
+
         Paciente paciente = pacienteRepository.findById(request.getPacienteId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el paciente con ID: " + request.getPacienteId()));
 
@@ -98,9 +117,21 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     @Transactional
     public TurnoResponseDTO cancelarTurno(Long id) {
-        // TODO: Pendiente de validación de seguridad (JWT/Roles). Solo el paciente dueño del turno o un usuario con rol jerárquico (Médico/Admin) podrá cancelar este turno
         Turno turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el turno con ID: " + id));
+
+        // Validación de propiedad: Pacientes y Médicos solo pueden cancelar sus propios turnos
+        SecurityUtils.getCurrentUser().ifPresent(user -> {
+            if (user.esPaciente()) {
+                if (user.getPacienteId() == null || !turno.getPaciente().getId().equals(user.getPacienteId())) {
+                    throw new AccessDeniedException("No tiene permiso para cancelar este turno.");
+                }
+            } else if (user.esMedico()) {
+                if (user.getProfesionalId() == null || !turno.getProfesional().getId().equals(user.getProfesionalId())) {
+                    throw new AccessDeniedException("No tiene permiso para cancelar un turno asignado a otro profesional.");
+                }
+            }
+        });
 
         turno.setEstado(EstadoTurno.CANCELADO);
         Turno turnoActualizado = turnoRepository.save(turno);

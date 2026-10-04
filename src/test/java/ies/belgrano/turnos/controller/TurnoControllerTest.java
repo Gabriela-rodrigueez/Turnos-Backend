@@ -39,6 +39,7 @@ import ies.belgrano.turnos.repository.EspecialidadRepository;
 import ies.belgrano.turnos.repository.PacienteRepository;
 import ies.belgrano.turnos.repository.ProfesionalRepository;
 import ies.belgrano.turnos.repository.SedeRepository;
+import ies.belgrano.turnos.repository.UsuarioRepository;
 import ies.belgrano.turnos.security.JwtService;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -68,6 +69,9 @@ class TurnoControllerTest {
     @Autowired
     private SedeRepository sedeRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     private MockMvc mockMvc;
     private Paciente paciente;
     private Profesional profesional;
@@ -88,8 +92,8 @@ class TurnoControllerTest {
         sede = sedeRepository.save(new Sede("Hospital Notti", "Bandera de los Andes 2603", "2614132000", "Guaymallén"));
 
         Usuario usuario = new Usuario("carlos@gmail.com", "hash", Rol.PACIENTE);
-        usuario.setId(200L);
         usuario.setPaciente(paciente);
+        usuarioRepository.save(usuario);
         tokenPaciente = jwtService.generarToken(usuario);
     }
 

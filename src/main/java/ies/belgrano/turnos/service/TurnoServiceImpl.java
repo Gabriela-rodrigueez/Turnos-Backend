@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ies.belgrano.turnos.dto.ReservaPresencialRequestDTO;
 import ies.belgrano.turnos.dto.ReservaTurnoRequestDTO;
 import ies.belgrano.turnos.dto.TurnoResponseDTO;
 import ies.belgrano.turnos.exception.ConflictoHorarioException;
@@ -108,6 +109,50 @@ public class TurnoServiceImpl implements TurnoService {
         turno.setSede(sede);
         turno.setFechaHora(request.getFechaHora());
         turno.setMotivoConsulta(request.getMotivoConsulta());
+        turno.setEstado(EstadoTurno.RESERVADO);
+
+        Turno turnoGuardado = turnoRepository.save(turno);
+        return TurnoResponseDTO.fromEntity(turnoGuardado);
+    }
+
+    @Override
+    @Transactional
+    public TurnoResponseDTO reservarTurnoPresencial(ReservaPresencialRequestDTO request) {
+        Paciente paciente = pacienteRepository.findById(request.getPacienteId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el paciente con ID: " + request.getPacienteId()));
+
+        Profesional profesional = profesionalRepository.findById(request.getProfesionalId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el profesional con ID: " + request.getProfesionalId()));
+
+        Especialidad especialidad = especialidadRepository.findById(request.getEspecialidadId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró la especialidad con ID: " + request.getEspecialidadId()));
+
+        Sede sede = sedeRepository.findById(request.getSedeId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró la sede con ID: " + request.getSedeId()));
+
+        // Regla de Negocio: Impide dos turnos activos para el mismo profesional en la misma fecha y hora
+        boolean existeConflicto = turnoRepository.existsByProfesionalIdAndFechaHoraAndEstadoNot(
+                request.getProfesionalId(),
+                request.getFechaHora(),
+                EstadoTurno.CANCELADO
+        );
+
+        if (existeConflicto) {
+            throw new ConflictoHorarioException("El profesional seleccionado ya posee un turno agendado en el horario: " + request.getFechaHora());
+        }
+
+        Turno turno = new Turno();
+        turno.setPaciente(paciente);
+        turno.setProfesional(profesional);
+        turno.setEspecialidad(especialidad);
+        turno.setSede(sede);
+        turno.setFechaHora(request.getFechaHora());
+        turno.setMotivoConsulta(request.getMotivoConsulta() != null && !request.getMotivoConsulta().isBlank()
+                ? request.getMotivoConsulta()
+                : "Atención Presencial Administrativa");
+        turno.setObservaciones(request.getObservaciones() != null && !request.getObservaciones().isBlank()
+                ? request.getObservaciones()
+                : "Turno presencial agendado por personal administrativo");
         turno.setEstado(EstadoTurno.RESERVADO);
 
         Turno turnoGuardado = turnoRepository.save(turno);

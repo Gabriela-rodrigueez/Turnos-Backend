@@ -21,9 +21,9 @@ public class Paciente {
     @Column(nullable = false)
     private String apellido;
 
-    @NotBlank(message = "El DNI es obligatorio")
+    @NotBlank(message = "El CUIL es obligatorio")
     @Column(nullable = false, unique = true)
-    private String dni;
+    private String cuil;
 
     @Column
     private String email;
@@ -45,11 +45,11 @@ public class Paciente {
     public Paciente() {
     }
 
-    public Paciente(Long id, String nombre, String apellido, String dni, String email, String telefono, LocalDate fechaNacimiento, ObraSocial obraSocial) {
+    public Paciente(Long id, String nombre, String apellido, String cuil, String email, String telefono, LocalDate fechaNacimiento, ObraSocial obraSocial) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.dni = dni;
+        this.cuil = cuil;
         this.email = email;
         this.telefono = telefono;
         this.fechaNacimiento = fechaNacimiento;
@@ -80,12 +80,12 @@ public class Paciente {
         this.apellido = apellido;
     }
 
-    public String getDni() {
-        return dni;
+    public String getCuil() {
+        return cuil;
     }
 
-    public void setDni(String dni) {
-        this.dni = dni;
+    public void setCuil(String cuil) {
+        this.cuil = cuil;
     }
 
     public String getEmail() {

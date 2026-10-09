@@ -1,13 +1,11 @@
 package ies.belgrano.turnos.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequestDTO {
 
-    @NotBlank(message = "El correo electrónico es obligatorio")
-    @Email(message = "El formato de correo electrónico es inválido")
-    private String email;
+    @NotBlank(message = "El identificador (CUIL, Legajo o Matrícula) es obligatorio")
+    private String identificador;
 
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
@@ -15,17 +13,17 @@ public class LoginRequestDTO {
     public LoginRequestDTO() {
     }
 
-    public LoginRequestDTO(String email, String password) {
-        this.email = email;
+    public LoginRequestDTO(String identificador, String password) {
+        this.identificador = identificador;
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
+    public String getIdentificador() {
+        return identificador;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setIdentificador(String identificador) {
+        this.identificador = identificador;
     }
 
     public String getPassword() {

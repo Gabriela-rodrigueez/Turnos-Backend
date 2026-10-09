@@ -20,7 +20,7 @@ INSERT INTO sedes (id, nombre, direccion, telefono, ciudad) VALUES (1, 'Hospital
 INSERT INTO sedes (id, nombre, direccion, telefono, ciudad) VALUES (2, 'Hospital Pediátrico Humberto Notti', 'Av. Bandera de los Andes 2603', '0261-4132000', 'Guaymallén');
 INSERT INTO sedes (id, nombre, direccion, telefono, ciudad) VALUES (3, 'Sede Luján de Cuyo', 'San Martín 1200', '0261-4980000', 'Luján de Cuyo');
 
--- 4. PROFESIONALES
+-- 4. PROFESIONALES (Mantenemos dni porque la tabla no se alteró)
 INSERT INTO profesionales (id, nombre, apellido, dni, matricula, email, telefono) VALUES (1, 'Roberto', 'Pérez', '20999888', 'M-12345', 'roberto.perez@hospital.com', '2615556661');
 INSERT INTO profesionales (id, nombre, apellido, dni, matricula, email, telefono) VALUES (2, 'María', 'Gómez', '25888777', 'M-54321', 'maria.gomez@notti.gob.ar', '2615556662');
 INSERT INTO profesionales (id, nombre, apellido, dni, matricula, email, telefono) VALUES (3, 'Carlos', 'Rodríguez', '18777666', 'M-98765', 'carlos.rodriguez@central.gob.ar', '2615556663');
@@ -31,10 +31,10 @@ INSERT INTO profesional_especialidad (profesional_id, especialidad_id) VALUES (2
 INSERT INTO profesional_especialidad (profesional_id, especialidad_id) VALUES (3, 3);
 INSERT INTO profesional_especialidad (profesional_id, especialidad_id) VALUES (3, 4);
 
--- 6. PACIENTES
-INSERT INTO pacientes (id, nombre, apellido, dni, email, telefono, fecha_nacimiento, obra_social_id, tutor_id) VALUES (1, 'Juan', 'González', '35111222', 'juan.gonzalez@gmail.com', '2614001111', '1990-05-15', 1, NULL);
-INSERT INTO pacientes (id, nombre, apellido, dni, email, telefono, fecha_nacimiento, obra_social_id, tutor_id) VALUES (2, 'Lucía', 'Martínez', '40222333', 'lucia.martinez@hotmail.com', '2614002222', '1997-11-20', 3, NULL);
-INSERT INTO pacientes (id, nombre, apellido, dni, email, telefono, fecha_nacimiento, obra_social_id, tutor_id) VALUES (3, 'Mateo', 'González', '55333444', 'tutor.juan@gmail.com', '2614001111', '2018-08-10', 1, 1);
+-- 6. PACIENTES (Aquí usamos cuil de 11 dígitos)
+INSERT INTO pacientes (id, nombre, apellido, cuil, email, telefono, fecha_nacimiento, obra_social_id, tutor_id) VALUES (1, 'Juan', 'González', '27351112229', 'juan.gonzalez@gmail.com', '2614001111', '1990-05-15', 1, NULL);
+INSERT INTO pacientes (id, nombre, apellido, cuil, email, telefono, fecha_nacimiento, obra_social_id, tutor_id) VALUES (2, 'Lucía', 'Martínez', '27402223339', 'lucia.martinez@hotmail.com', '2614002222', '1997-11-20', 3, NULL);
+INSERT INTO pacientes (id, nombre, apellido, cuil, email, telefono, fecha_nacimiento, obra_social_id, tutor_id) VALUES (3, 'Mateo', 'González', '27553334449', 'tutor.juan@gmail.com', '2614001111', '2018-08-10', 1, 1);
 
 -- 7. TURNOS INICIALES DE PRUEBA
 INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
@@ -50,15 +50,19 @@ INSERT INTO turnos (id, fecha_hora, estado, paciente_id, profesional_id, especia
 VALUES (4, '2026-10-06 10:00:00', 'DISPONIBLE', NULL, 2, 2, 2, NULL, 'Turno libre pediatría', CURRENT_TIMESTAMP);
 
 -- 8. USUARIOS INICIALES (Contraseña por defecto: Password123)
--- Hash BCrypt para 'Password123': $2a$10$DOWV34/Jc71tq.F.vW/w4eL2mK0P.Qy6y4W.7Z5o9j1mK0P.Qy6y4 (o equivalente)
-INSERT INTO usuarios (id, email, password_hash, rol, activo, fecha_creacion, paciente_id, profesional_id)
-VALUES (1, 'admin@saludmza.gob.ar', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'ADMINISTRADOR', true, CURRENT_TIMESTAMP, NULL, NULL);
+-- Hash BCrypt para 'Password123'
 
+-- ADMINISTRADOR (Inicia sesión con el Legajo L-12345)
 INSERT INTO usuarios (id, email, password_hash, rol, activo, fecha_creacion, paciente_id, profesional_id)
-VALUES (2, 'juan.gonzalez@gmail.com', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'PACIENTE', true, CURRENT_TIMESTAMP, 1, NULL);
+VALUES (1, 'L-12345', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'ADMINISTRADOR', true, CURRENT_TIMESTAMP, NULL, NULL);
 
+-- PACIENTE (Inicia sesión con el CUIL 27351112229)
 INSERT INTO usuarios (id, email, password_hash, rol, activo, fecha_creacion, paciente_id, profesional_id)
-VALUES (3, 'roberto.perez@hospital.com', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'MEDICO', true, CURRENT_TIMESTAMP, NULL, 1);
+VALUES (2, '27351112229', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'PACIENTE', true, CURRENT_TIMESTAMP, 1, NULL);
+
+-- MEDICO (Inicia sesión con la Matrícula M-12345)
+INSERT INTO usuarios (id, email, password_hash, rol, activo, fecha_creacion, paciente_id, profesional_id)
+VALUES (3, 'M-12345', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'MEDICO', true, CURRENT_TIMESTAMP, NULL, 1);
 
 
 -- REINICIO DE SECUENCIAS H2 PARA PREVENIR COLISIONES DE ID
@@ -69,4 +73,3 @@ ALTER TABLE profesionales ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE pacientes ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE turnos ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 10;
-

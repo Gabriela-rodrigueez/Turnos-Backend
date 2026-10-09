@@ -38,28 +38,28 @@ public class AdminPacienteController {
     @GetMapping("/buscar")
     @EsAdministrador
     @Operation(
-            summary = "Buscar paciente por DNI",
-            description = "Permite al personal administrativo buscar un paciente por su número de DNI. Retorna 200 OK con el DTO del paciente o 404 Not Found si no está registrado."
+            summary = "Buscar paciente por Cuil",
+            description = "Permite al personal administrativo buscar un paciente por su número de CUIL. Retorna 200 OK con el DTO del paciente o 404 Not Found si no está registrado."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Paciente encontrado exitosamente",
                     content = @Content(schema = @Schema(implementation = PacienteResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "DNI faltante o inválido",
+            @ApiResponse(responseCode = "400", description = "CUIL faltante o inválido",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "401", description = "No autenticado: Se requiere token JWT válido",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Acceso denegado: Se requiere rol ADMINISTRADOR",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Paciente no encontrado con el DNI especificado",
+            @ApiResponse(responseCode = "404", description = "Paciente no encontrado con el CUIL especificado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    public ResponseEntity<PacienteResponseDTO> buscarPorDni(
-            @Parameter(description = "Número de DNI del paciente a buscar", required = true, example = "35111222")
-            @RequestParam("dni") String dni
+    public ResponseEntity<PacienteResponseDTO> buscarPorCuil(
+            @Parameter(description = "Número de CUIL del paciente a buscar", required = true, example = "27351112229")
+            @RequestParam("cuil") String cuil
     ) {
-        PacienteResponseDTO paciente = pacienteService.buscarPorDni(dni);
+        PacienteResponseDTO paciente = pacienteService.buscarPorCuil(cuil);
         return ResponseEntity.ok(paciente);
     }
 

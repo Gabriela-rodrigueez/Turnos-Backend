@@ -46,8 +46,8 @@ public class AuthServiceImpl implements AuthService {
             throw new ConflictoException("El correo electrónico " + dto.getEmail() + " ya se encuentra registrado.");
         }
 
-        if (pacienteRepository.findByDni(dto.getDni()).isPresent()) {
-            throw new ConflictoException("El DNI " + dto.getDni() + " ya se encuentra registrado en el sistema.");
+        if (pacienteRepository.findByCuil(dto.getCuil()).isPresent()) {
+            throw new ConflictoException("El CUIL " + dto.getCuil() + " ya se encuentra registrado en el sistema.");
         }
 
         Long osId = (dto.getObraSocialId() != null) ? dto.getObraSocialId() : 4L; // Default: Particular
@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
                 null,
                 dto.getNombre(),
                 dto.getApellido(),
-                dto.getDni(),
+                dto.getCuil(),
                 dto.getEmail(),
                 dto.getTelefono(),
                 dto.getFechaNacimiento(),
@@ -89,8 +89,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponseDTO login(LoginRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new NoAutorizadoException("Correo electrónico o contraseña incorrectos."));
+    	Usuario usuario = usuarioRepository.findByEmail(dto.getIdentificador())
+                .orElseThrow(() -> new NoAutorizadoException("Identificador o contraseña incorrectos."));
 
         if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {
             throw new NoAutorizadoException("Correo electrónico o contraseña incorrectos.");

@@ -15,7 +15,7 @@ public class RegistroRequestDTO {
 
     @NotBlank(message = "El DNI es obligatorio")
     @Pattern(regexp = "^\\d{7,8}$", message = "El DNI debe tener entre 7 y 8 dígitos numéricos")
-    private String dni;
+    private String cuil;
 
     @NotBlank(message = "El correo electrónico es obligatorio")
     @Email(message = "El formato de correo electrónico es inválido")
@@ -41,7 +41,7 @@ public class RegistroRequestDTO {
     public RegistroRequestDTO(String nombre, String apellido, String dni, String email, String password, String telefono, LocalDate fechaNacimiento, Long obraSocialId) {
         this.nombre = nombre;
         this.apellido = apellido;
-        this.dni = dni;
+        this.cuil = dni;
         this.email = email;
         this.password = password;
         this.telefono = telefono;
@@ -65,12 +65,12 @@ public class RegistroRequestDTO {
         this.apellido = apellido;
     }
 
-    public String getDni() {
-        return dni;
+    public String getCuil() {
+        return cuil;
     }
 
-    public void setDni(String dni) {
-        this.dni = dni;
+    public void setCuil(String cuil) {
+        this.cuil = cuil;
     }
 
     public String getEmail() {

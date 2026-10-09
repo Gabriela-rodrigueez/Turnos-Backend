@@ -17,8 +17,8 @@ public class PacienteResponseDTO {
     @Schema(description = "Apellido(s) del paciente", example = "González")
     private String apellido;
 
-    @Schema(description = "Número de DNI del paciente", example = "35111222")
-    private String dni;
+    @Schema(description = "Número de CUIL del paciente", example = "27351112229")
+    private String cuil;
 
     @Schema(description = "Correo electrónico del paciente", example = "juan.gonzalez@gmail.com")
     private String email;
@@ -44,13 +44,13 @@ public class PacienteResponseDTO {
     public PacienteResponseDTO() {
     }
 
-    public PacienteResponseDTO(Long id, String nombre, String apellido, String dni, String email, String telefono,
+    public PacienteResponseDTO(Long id, String nombre, String apellido, String cuil, String email, String telefono,
                                LocalDate fechaNacimiento, Long obraSocialId, String obraSocialNombre,
                                Long tutorId, String tutorNombreCompleto) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.dni = dni;
+        this.cuil = cuil;
         this.email = email;
         this.telefono = telefono;
         this.fechaNacimiento = fechaNacimiento;
@@ -69,7 +69,7 @@ public class PacienteResponseDTO {
         dto.setId(paciente.getId());
         dto.setNombre(paciente.getNombre());
         dto.setApellido(paciente.getApellido());
-        dto.setDni(paciente.getDni());
+        dto.setCuil(paciente.getCuil());
         dto.setEmail(paciente.getEmail());
         dto.setTelefono(paciente.getTelefono());
         dto.setFechaNacimiento(paciente.getFechaNacimiento());
@@ -111,12 +111,12 @@ public class PacienteResponseDTO {
         this.apellido = apellido;
     }
 
-    public String getDni() {
-        return dni;
+    public String getCuil() {
+        return cuil;
     }
 
-    public void setDni(String dni) {
-        this.dni = dni;
+    public void setCuil(String cuil) {
+        this.cuil = cuil;
     }
 
     public String getEmail() {

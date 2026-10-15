@@ -34,6 +34,21 @@ public class Paciente {
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
+    @Column(name = "genero")
+    private String genero;
+
+    @Column(name = "tiene_obra_social")
+    private Boolean tieneObraSocial;
+
+    @Column(name = "proveedor_obra_social")
+    private String proveedorObraSocial;
+
+    @Column(name = "numero_afiliado")
+    private String numeroAfiliado;
+
+    @Column(name = "plan_obra_social")
+    private String planObraSocial;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "obra_social_id")
     private ObraSocial obraSocial;
@@ -127,6 +142,21 @@ public class Paciente {
     public void setTutor(Paciente tutor) {
         this.tutor = tutor;
     }
+
+    public String getGenero() { return genero; }
+    public void setGenero(String genero) { this.genero = genero; }
+
+    public Boolean getTieneObraSocial() { return tieneObraSocial; }
+    public void setTieneObraSocial(Boolean tieneObraSocial) { this.tieneObraSocial = tieneObraSocial; }
+
+    public String getProveedorObraSocial() { return proveedorObraSocial; }
+    public void setProveedorObraSocial(String proveedorObraSocial) { this.proveedorObraSocial = proveedorObraSocial; }
+
+    public String getNumeroAfiliado() { return numeroAfiliado; }
+    public void setNumeroAfiliado(String numeroAfiliado) { this.numeroAfiliado = numeroAfiliado; }
+
+    public String getPlanObraSocial() { return planObraSocial; }
+    public void setPlanObraSocial(String planObraSocial) { this.planObraSocial = planObraSocial; }
 
     @Override
     public boolean equals(Object o) {

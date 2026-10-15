@@ -65,6 +65,12 @@ public class AuthServiceImpl implements AuthService {
                 obraSocial
         );
         paciente.setObraSocial(obraSocial);
+        paciente.setGenero(dto.getGender());
+        paciente.setTieneObraSocial("si".equalsIgnoreCase(dto.getHasInsurance()) || "true".equalsIgnoreCase(dto.getHasInsurance()));
+        paciente.setProveedorObraSocial(dto.getProvider());
+        paciente.setNumeroAfiliado(dto.getAffiliateNum());
+        paciente.setPlanObraSocial(dto.getPlan());
+
         paciente = pacienteRepository.save(paciente);
 
         String passwordHash = passwordEncoder.encode(dto.getPassword());
@@ -89,11 +95,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponseDTO login(LoginRequestDTO dto) {
-    	Usuario usuario = usuarioRepository.findByEmail(dto.getIdentificador())
-                .orElseThrow(() -> new NoAutorizadoException("Identificador o contraseña incorrectos."));
+    	Usuario usuario = usuarioRepository.findByPacienteCuil(dto.getIdentificador())
+                .orElseThrow(() -> new NoAutorizadoException("CUIL no registrado o contraseña incorrecta."));
 
         if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {
-            throw new NoAutorizadoException("Correo electrónico o contraseña incorrectos.");
+            throw new NoAutorizadoException("CUIL no registrado o contraseña incorrecta.");
         }
 
         if (!Boolean.TRUE.equals(usuario.getActivo())) {

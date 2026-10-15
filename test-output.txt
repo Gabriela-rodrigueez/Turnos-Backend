@@ -1,0 +1,122 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< ies.belgrano:turnos >-------------------------
+[INFO] Building  0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ turnos ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ turnos ---
+[INFO] Recompiling the module because of added or removed source files.
+[INFO] Compiling 67 source files with javac [debug parameters release 21] to target\classes
+[INFO] /C:/Users/santi/OneDrive/Documentos/Turnos_salud/Turnos-Backend/src/main/java/ies/belgrano/turnos/security/JwtAuthenticationFilter.java: C:\Users\santi\OneDrive\Documentos\Turnos_salud\Turnos-Backend\src\main\java\ies\belgrano\turnos\security\JwtAuthenticationFilter.java uses or overrides a deprecated API.
+[INFO] /C:/Users/santi/OneDrive/Documentos/Turnos_salud/Turnos-Backend/src/main/java/ies/belgrano/turnos/security/JwtAuthenticationFilter.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ turnos ---
+[INFO] skip non existing resourceDirectory C:\Users\santi\OneDrive\Documentos\Turnos_salud\Turnos-Backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ turnos ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 9 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ turnos ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-junit-platform/3.5.6/surefire-junit-platform-3.5.6.pom
+Progress (1): 833 BProgress (1): 2.7 kBProgress (1): 5.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-junit-platform/3.5.6/surefire-junit-platform-3.5.6.pom (5.2 kB at 386 B/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-providers/3.5.6/surefire-providers-3.5.6.pom
+Progress (1): 844 BProgress (1): 2.2 kBProgress (1): 2.5 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-providers/3.5.6/surefire-providers-3.5.6.pom (2.5 kB at 12 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/common-java5/3.5.6/common-java5-3.5.6.pom
+Progress (1): 844 BProgress (1): 2.2 kBProgress (1): 3.1 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/common-java5/3.5.6/common-java5-3.5.6.pom (3.1 kB at 10 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.pom
+Progress (1): 957 BProgress (1): 2.5 kBProgress (1): 3.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.pom (3.2 kB at 19 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.pom
+Progress (1): 966 BProgress (1): 2.5 kBProgress (1): 2.8 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.pom (2.8 kB at 20 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.pom
+Progress (1): 967 BProgress (1): 2.5 kBProgress (1): 3.0 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.pom (3.0 kB at 22 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-junit-platform/3.5.6/surefire-junit-platform-3.5.6.jar
+Progress (1): 0.9/35 kBProgress (1): 2.3/35 kBProgress (1): 3.6/35 kBProgress (1): 5.0/35 kBProgress (1): 6.4/35 kBProgress (1): 7.7/35 kBProgress (1): 9.1/35 kBProgress (1): 10/35 kB Progress (1): 12/35 kBProgress (1): 13/35 kBProgress (1): 15/35 kBProgress (1): 16/35 kBProgress (1): 17/35 kBProgress (1): 19/35 kBProgress (1): 20/35 kBProgress (1): 21/35 kBProgress (1): 23/35 kBProgress (1): 24/35 kBProgress (1): 25/35 kBProgress (1): 27/35 kBProgress (1): 28/35 kBProgress (1): 30/35 kBProgress (1): 31/35 kBProgress (1): 35/35 kBProgress (1): 35 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/surefire-junit-platform/3.5.6/surefire-junit-platform-3.5.6.jar (35 kB at 43 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/common-java5/3.5.6/common-java5-3.5.6.jar
+Progress (1): 3.8/208 kBProgress (1): 8.0/208 kBProgress (1): 8.2/208 kBProgress (1): 12/208 kB Progress (1): 17/208 kBProgress (1): 21/208 kBProgress (1): 25/208 kBProgress (1): 29/208 kBProgress (1): 33/208 kBProgress (1): 37/208 kBProgress (1): 41/208 kBProgress (1): 46/208 kBProgress (1): 50/208 kBProgress (1): 54/208 kBProgress (1): 57/208 kBProgress (1): 62/208 kBProgress (1): 66/208 kBProgress (1): 70/208 kBProgress (1): 74/208 kBProgress (1): 78/208 kBProgress (1): 83/208 kBProgress (1): 87/208 kBProgress (1): 91/208 kBProgress (1): 95/208 kBProgress (1): 100/208 kBProgress (1): 104/208 kBProgress (1): 108/208 kBProgress (1): 112/208 kBProgress (1): 117/208 kBProgress (1): 121/208 kBProgress (1): 123/208 kBProgress (1): 127/208 kBProgress (1): 131/208 kBProgress (2): 131/208 kB | 0.9/152 kBProgress (2): 131/208 kB | 2.3/152 kBProgress (2): 131/208 kB | 3.2/152 kBProgress (2): 131/208 kB | 4.5/152 kBProgress (2): 131/208 kB | 5.9/152 kBProgress (2): 131/208 kB | 7.3/152 kBProgress (2): 131/208 kB | 8.7/152 kBProgress (2): 131/208 kB | 10/152 kB Progress (2): 131/208 kB | 11/152 kBProgress (2): 131/208 kB | 13/152 kBProgress (2): 131/208 kB | 14/152 kBProgress (2): 131/208 kB | 15/152 kBProgress (2): 131/208 kB | 17/152 kBProgress (2): 131/208 kB | 18/152 kBProgress (2): 131/208 kB | 20/152 kBProgress (2): 131/208 kB | 21/152 kBProgress (2): 131/208 kB | 22/152 kBProgress (2): 131/208 kB | 24/152 kBProgress (2): 131/208 kB | 25/152 kBProgress (2): 131/208 kB | 26/152 kBProgress (2): 131/208 kB | 28/152 kBProgress (2): 131/208 kB | 29/152 kBProgress (2): 131/208 kB | 30/152 kBProgress (2): 131/208 kB | 32/152 kBProgress (2): 131/208 kB | 33/152 kBProgress (2): 131/208 kB | 35/152 kBProgress (2): 131/208 kB | 36/152 kBProgress (2): 131/208 kB | 37/152 kBProgress (2): 131/208 kB | 39/152 kBProgress (2): 131/208 kB | 40/152 kBProgress (2): 131/208 kB | 41/152 kBProgress (2): 131/208 kB | 43/152 kBProgress (2): 131/208 kB | 44/152 kBProgress (2): 131/208 kB | 46/152 kBProgress (2): 131/208 kB | 47/152 kBProgress (2): 131/208 kB | 48/152 kBProgress (2): 131/208 kB | 50/152 kBProgress (2): 131/208 kB | 51/152 kBProgress (2): 131/208 kB | 52/152 kBProgress (2): 131/208 kB | 54/152 kBProgress (2): 131/208 kB | 55/152 kBProgress (2): 131/208 kB | 59/152 kBProgress (2): 131/208 kB | 61/152 kBProgress (2): 131/208 kB | 65/152 kBProgress (2): 131/208 kB | 69/152 kBProgress (2): 131/208 kB | 73/152 kBProgress (2): 131/208 kB | 77/152 kBProgress (2): 131/208 kB | 82/152 kBProgress (2): 131/208 kB | 86/152 kBProgress (2): 131/208 kB | 90/152 kBProgress (2): 131/208 kB | 94/152 kBProgress (2): 131/208 kB | 99/152 kBProgress (2): 131/208 kB | 103/152 kBProgress (2): 131/208 kB | 107/152 kBProgress (2): 131/208 kB | 111/152 kBProgress (2): 131/208 kB | 115/152 kBProgress (2): 136/208 kB | 115/152 kBProgress (2): 140/208 kB | 115/152 kBProgress (2): 144/208 kB | 115/152 kBProgress (2): 148/208 kB | 115/152 kBProgress (2): 152/208 kB | 115/152 kBProgress (2): 169/208 kB | 115/152 kBProgress (2): 185/208 kB | 115/152 kBProgress (2): 202/208 kB | 115/152 kBProgress (2): 208 kB | 115/152 kB    Progress (3): 208 kB | 115/152 kB | 0.9/256 kBProgress (3): 208 kB | 115/152 kB | 2.3/256 kBProgress (3): 208 kB | 115/152 kB | 3.6/256 kBProgress (3): 208 kB | 115/152 kB | 5.0/256 kBProgress (3): 208 kB | 115/152 kB | 6.4/256 kBProgress (3): 208 kB | 115/152 kB | 7.7/256 kBProgress (3): 208 kB | 115/152 kB | 9.1/256 kBProgress (3): 208 kB | 115/152 kB | 10/256 kB Progress (3): 208 kB | 115/152 kB | 12/256 kBProgress (3): 208 kB | 115/152 kB | 13/256 kBProgress (3): 208 kB | 115/152 kB | 15/256 kBProgress (3): 208 kB | 115/152 kB | 16/256 kBProgress (3): 208 kB | 115/152 kB | 17/256 kBProgress (3): 208 kB | 115/152 kB | 19/256 kBProgress (3): 208 kB | 115/152 kB | 20/256 kBProgress (3): 208 kB | 115/152 kB | 21/256 kBProgress (3): 208 kB | 115/152 kB | 23/256 kBProgress (3): 208 kB | 115/152 kB | 24/256 kBProgress (3): 208 kB | 115/152 kB | 26/256 kBProgress (3): 208 kB | 115/152 kB | 27/256 kBProgress (3): 208 kB | 115/152 kB | 28/256 kBProgress (3): 208 kB | 115/152 kB | 29/256 kBProgress (3): 208 kB | 115/152 kB | 30/256 kBProgress (3): 208 kB | 115/152 kB | 32/256 kBProgress (3): 208 kB | 115/152 kB | 33/256 kBProgress (3): 208 kB | 115/152 kB | 35/256 kBProgress (3): 208 kB | 115/152 kB | 36/256 kBProgress (3): 208 kB | 115/152 kB | 37/256 kBProgress (3): 208 kB | 115/152 kB | 39/256 kBProgress (3): 208 kB | 115/152 kB | 40/256 kBProgress (3): 208 kB | 115/152 kB | 41/256 kBProgress (3): 208 kB | 115/152 kB | 43/256 kBProgress (3): 208 kB | 115/152 kB | 44/256 kBProgress (3): 208 kB | 115/152 kB | 46/256 kBProgress (3): 208 kB | 115/152 kB | 47/256 kBProgress (3): 208 kB | 115/152 kB | 48/256 kBProgress (3): 208 kB | 115/152 kB | 50/256 kBProgress (3): 208 kB | 115/152 kB | 51/256 kBProgress (3): 208 kB | 115/152 kB | 52/256 kBProgress (3): 208 kB | 115/152 kB | 54/256 kBProgress (3): 208 kB | 115/152 kB | 55/256 kBProgress (3): 208 kB | 115/152 kB | 59/256 kBProgress (3): 208 kB | 119/152 kB | 59/256 kBProgress (3): 208 kB | 123/152 kB | 59/256 kBProgress (3): 208 kB | 127/152 kB | 59/256 kBProgress (3): 208 kB | 132/152 kB | 59/256 kBProgress (3): 208 kB | 136/152 kB | 59/256 kBProgress (3): 208 kB | 140/152 kB | 59/256 kBProgress (3): 208 kB | 144/152 kB | 59/256 kBProgress (3): 208 kB | 149/152 kB | 59/256 kBProgress (3): 208 kB | 152 kB | 59/256 kB    Progress (3): 208 kB | 152 kB | 64/256 kBProgress (3): 208 kB | 152 kB | 68/256 kBProgress (3): 208 kB | 152 kB | 72/256 kBProgress (3): 208 kB | 152 kB | 76/256 kBProgress (3): 208 kB | 152 kB | 80/256 kBProgress (3): 208 kB | 152 kB | 85/256 kBProgress (3): 208 kB | 152 kB | 89/256 kBProgress (3): 208 kB | 152 kB | 93/256 kBProgress (3): 208 kB | 152 kB | 97/256 kBProgress (3): 208 kB | 152 kB | 102/256 kBProgress (3): 208 kB | 152 kB | 106/256 kBProgress (3): 208 kB | 152 kB | 110/256 kBProgress (3): 208 kB | 152 kB | 114/256 kBProgress (3): 208 kB | 152 kB | 119/256 kBProgress (3): 208 kB | 152 kB | 123/256 kBProgress (3): 208 kB | 152 kB | 127/256 kBProgress (3): 208 kB | 152 kB | 131/256 kBProgress (3): 208 kB | 152 kB | 135/256 kBProgress (3): 208 kB | 152 kB | 140/256 kBProgress (3): 208 kB | 152 kB | 144/256 kBProgress (3): 208 kB | 152 kB | 148/256 kBProgress (3): 208 kB | 152 kB | 152/256 kBProgress (3): 208 kB | 152 kB | 157/256 kBProgress (3): 208 kB | 152 kB | 159/256 kBProgress (3): 208 kB | 152 kB | 163/256 kBProgress (3): 208 kB | 152 kB | 167/256 kBProgress (3): 208 kB | 152 kB | 171/256 kBProgress (3): 208 kB | 152 kB | 176/256 kBProgress (3): 208 kB | 152 kB | 180/256 kBProgress (3): 208 kB | 152 kB | 184/256 kBProgress (3): 208 kB | 152 kB | 188/256 kBProgress (3): 208 kB | 152 kB | 193/256 kBProgress (3): 208 kB | 152 kB | 197/256 kBProgress (3): 208 kB | 152 kB | 201/256 kBProgress (3): 208 kB | 152 kB | 205/256 kBProgress (3): 208 kB | 152 kB | 210/256 kBProgress (3): 208 kB | 152 kB | 214/256 kBProgress (3): 208 kB | 152 kB | 218/256 kBProgress (3): 208 kB | 152 kB | 222/256 kBProgress (3): 208 kB | 152 kB | 239/256 kBProgress (3): 208 kB | 152 kB | 255/256 kBProgress (3): 208 kB | 152 kB | 256 kB                                          Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar (256 kB at 181 kB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar (208 kB at 147 kB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar (152 kB at 108 kB/s)
+Progress (1): 0.9/18 kBProgress (1): 2.3/18 kBProgress (1): 3.6/18 kBProgress (1): 5.0/18 kBProgress (1): 6.4/18 kBProgress (1): 7.7/18 kBProgress (1): 9.1/18 kBProgress (1): 10/18 kB Progress (1): 12/18 kBProgress (1): 13/18 kBProgress (1): 15/18 kBProgress (1): 16/18 kBProgress (1): 17/18 kBProgress (1): 18 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/surefire/common-java5/3.5.6/common-java5-3.5.6.jar (18 kB at 7.9 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/6.0.3/junit-platform-launcher-6.0.3.pom
+Progress (1): 971 BProgress (1): 2.5 kBProgress (1): 3.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/6.0.3/junit-platform-launcher-6.0.3.pom (3.2 kB at 19 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/6.0.3/junit-platform-launcher-6.0.3.jar
+Progress (1): 0.9/246 kBProgress (1): 2.3/246 kBProgress (1): 3.2/246 kBProgress (1): 4.5/246 kBProgress (1): 5.9/246 kBProgress (1): 7.3/246 kBProgress (1): 8.7/246 kBProgress (1): 10/246 kB Progress (1): 11/246 kBProgress (1): 13/246 kBProgress (1): 14/246 kBProgress (1): 15/246 kBProgress (1): 17/246 kBProgress (1): 18/246 kBProgress (1): 20/246 kBProgress (1): 21/246 kBProgress (1): 22/246 kBProgress (1): 24/246 kBProgress (1): 25/246 kBProgress (1): 26/246 kBProgress (1): 28/246 kBProgress (1): 29/246 kBProgress (1): 30/246 kBProgress (1): 32/246 kBProgress (1): 36/246 kBProgress (1): 40/246 kBProgress (1): 45/246 kBProgress (1): 49/246 kBProgress (1): 53/246 kBProgress (1): 57/246 kBProgress (1): 61/246 kBProgress (1): 66/246 kBProgress (1): 69/246 kBProgress (1): 73/246 kBProgress (1): 77/246 kBProgress (1): 81/246 kBProgress (1): 86/246 kBProgress (1): 90/246 kBProgress (1): 94/246 kBProgress (1): 98/246 kBProgress (1): 103/246 kBProgress (1): 107/246 kBProgress (1): 110/246 kBProgress (1): 114/246 kBProgress (1): 118/246 kBProgress (1): 122/246 kBProgress (1): 127/246 kBProgress (1): 131/246 kBProgress (1): 134/246 kBProgress (1): 138/246 kBProgress (1): 143/246 kBProgress (1): 147/246 kBProgress (1): 151/246 kBProgress (1): 155/246 kBProgress (1): 160/246 kBProgress (1): 164/246 kBProgress (1): 168/246 kBProgress (1): 172/246 kBProgress (1): 177/246 kBProgress (1): 181/246 kBProgress (1): 185/246 kBProgress (1): 189/246 kBProgress (1): 193/246 kBProgress (1): 198/246 kBProgress (1): 214/246 kBProgress (1): 230/246 kBProgress (1): 246 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-launcher/6.0.3/junit-platform-launcher-6.0.3.jar (246 kB at 467 kB/s)
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running ies.belgrano.turnos.controller.AuthControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-10-11T22:08:36.028-03:00  INFO 12260 --- [turnos] [           main] i.b.t.controller.AuthControllerTest      : Starting AuthControllerTest using Java 26 with PID 12260 (started by santi in C:\Users\santi\OneDrive\Documentos\Turnos_salud\Turnos-Backend)
+2026-10-11T22:08:36.316-03:00  INFO 12260 --- [turnos] [           main] i.b.t.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-10-11T22:09:44.462-03:00  INFO 12260 --- [turnos] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-11T22:09:49.630-03:00  INFO 12260 --- [turnos] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 4600 ms. Found 7 JPA repository interfaces.
+2026-10-11T22:10:34.808-03:00  INFO 12260 --- [turnos] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-11T22:10:37.745-03:00  INFO 12260 --- [turnos] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-11T22:11:24.694-03:00  INFO 12260 --- [turnos] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-11T22:11:27.681-03:00  INFO 12260 --- [turnos] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-11T22:11:40.452-03:00  INFO 12260 --- [turnos] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:turnosdb user=SA
+2026-10-11T22:11:40.470-03:00  INFO 12260 --- [turnos] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-11T22:11:42.400-03:00  WARN 12260 --- [turnos] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-11T22:11:44.561-03:00  INFO 12260 --- [turnos] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:turnosdb]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: TURNOSDB/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-11T22:12:37.151-03:00  INFO 12260 --- [turnos] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-11T22:12:39.564-03:00  INFO 12260 --- [turnos] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-11T22:12:41.326-03:00  INFO 12260 --- [turnos] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-11T22:13:52.657-03:00  WARN 12260 --- [turnos] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-11T22:13:58.086-03:00  WARN 12260 --- [turnos] [           main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: d2896d1e-9478-41f1-9c8a-ffc04c3195fb
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-11T22:13:58.377-03:00  INFO 12260 --- [turnos] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-10-11T22:14:30.719-03:00  INFO 12260 --- [turnos] [           main] i.b.t.controller.AuthControllerTest      : Started AuthControllerTest in 379.729 seconds (process running for 439.594)
+2026-10-11T22:14:30.912-03:00  WARN 12260 --- [turnos] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-10-11T22:14:30.914-03:00  WARN 12260 --- [turnos] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-10-11T22:14:49.608-03:00  INFO 12260 --- [turnos] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-11T22:14:49.610-03:00  INFO 12260 --- [turnos] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-11T22:14:49.703-03:00  INFO 12260 --- [turnos] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 91 ms
+2026-10-11T22:14:59.438-03:00  INFO 12260 --- [turnos] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-11T22:14:59.439-03:00  INFO 12260 --- [turnos] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-11T22:14:59.475-03:00  INFO 12260 --- [turnos] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 35 ms
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 478.3 s -- in ies.belgrano.turnos.controller.AuthControllerTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14:57 min
+[INFO] Finished at: 2026-10-11T22:16:09-03:00
+[INFO] ------------------------------------------------------------------------

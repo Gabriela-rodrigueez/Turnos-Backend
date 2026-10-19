@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ies.belgrano.turnos.dto.ReservaPresencialRequestDTO;
 import ies.belgrano.turnos.dto.TurnoResponseDTO;
-import ies.belgrano.turnos.exception.ConflictoHorarioException;
+import ies.belgrano.turnos.exception.ConflictoException;
 import ies.belgrano.turnos.exception.RecursoNoEncontradoException;
 import ies.belgrano.turnos.model.Especialidad;
 import ies.belgrano.turnos.model.EstadoTurno;
@@ -63,11 +63,11 @@ class TurnoServicePresencialTest {
         Long profesionalId = 2L;
         Long especialidadId = 3L;
         Long sedeId = 4L;
+        Long turnoId = 10L;
         LocalDateTime fechaHora = LocalDateTime.now().plusDays(2);
 
         ReservaPresencialRequestDTO request = new ReservaPresencialRequestDTO(
-                pacienteId, profesionalId, especialidadId, sedeId, fechaHora,
-                "Consulta médica general", "Turno administrativo presencial"
+                turnoId, pacienteId, "Consulta médica general", "Turno administrativo presencial"
         );
 
         Paciente paciente = new Paciente(pacienteId, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null);
@@ -77,20 +77,16 @@ class TurnoServicePresencialTest {
         Sede sede = new Sede("Hospital Central", "Alem 450", "2614490000", "Mendoza");
         sede.setId(sedeId);
 
-        when(pacienteRepository.findById(pacienteId)).thenReturn(Optional.of(paciente));
-        when(profesionalRepository.findById(profesionalId)).thenReturn(Optional.of(profesional));
-        when(especialidadRepository.findById(especialidadId)).thenReturn(Optional.of(especialidad));
-        when(sedeRepository.findById(sedeId)).thenReturn(Optional.of(sede));
-        when(turnoRepository.existsByProfesionalIdAndFechaHoraAndEstadoNot(profesionalId, fechaHora, EstadoTurno.CANCELADO)).thenReturn(false);
+        Turno turnoDisponible = new Turno(turnoId, fechaHora, fechaHora.plusMinutes(30), EstadoTurno.DISPONIBLE, null, profesional, especialidad, sede, null);
 
-        Turno turnoGuardado = new Turno(10L, fechaHora, EstadoTurno.RESERVADO, paciente, profesional, especialidad, sede, "Consulta médica general");
-        turnoGuardado.setObservaciones("Turno administrativo presencial");
-        when(turnoRepository.save(any(Turno.class))).thenReturn(turnoGuardado);
+        when(pacienteRepository.findById(pacienteId)).thenReturn(Optional.of(paciente));
+        when(turnoRepository.findById(turnoId)).thenReturn(Optional.of(turnoDisponible));
+        when(turnoRepository.save(any(Turno.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         TurnoResponseDTO response = turnoService.reservarTurnoPresencial(request);
 
         assertNotNull(response);
-        assertEquals(10L, response.getId());
+        assertEquals(turnoId, response.getId());
         assertEquals(EstadoTurno.RESERVADO, response.getEstado());
         assertEquals(pacienteId, response.getPacienteId());
         assertEquals(profesionalId, response.getProfesionalId());
@@ -101,25 +97,22 @@ class TurnoServicePresencialTest {
     }
 
     @Test
-    @DisplayName("reservarTurnoPresencial: Lanza ConflictoHorarioException cuando el profesional ya tiene turno")
+    @DisplayName("reservarTurnoPresencial: Lanza ConflictoException cuando el turno no se encuentra en estado DISPONIBLE")
     void testReservarTurnoPresencial_ConflictoHorario() {
         Long pacienteId = 1L;
-        Long profesionalId = 2L;
-        Long especialidadId = 3L;
-        Long sedeId = 4L;
+        Long turnoId = 10L;
         LocalDateTime fechaHora = LocalDateTime.now().plusDays(2);
 
         ReservaPresencialRequestDTO request = new ReservaPresencialRequestDTO(
-                pacienteId, profesionalId, especialidadId, sedeId, fechaHora, "Consulta", "Obs"
+                turnoId, pacienteId, "Consulta", "Obs"
         );
 
-        when(pacienteRepository.findById(pacienteId)).thenReturn(Optional.of(new Paciente()));
-        when(profesionalRepository.findById(profesionalId)).thenReturn(Optional.of(new Profesional()));
-        when(especialidadRepository.findById(especialidadId)).thenReturn(Optional.of(new Especialidad()));
-        when(sedeRepository.findById(sedeId)).thenReturn(Optional.of(new Sede()));
-        when(turnoRepository.existsByProfesionalIdAndFechaHoraAndEstadoNot(profesionalId, fechaHora, EstadoTurno.CANCELADO)).thenReturn(true);
+        Turno turnoOcupado = new Turno(turnoId, fechaHora, fechaHora.plusMinutes(30), EstadoTurno.RESERVADO, new Paciente(), new Profesional(), new Especialidad(), new Sede(), "Consulta previa");
 
-        assertThrows(ConflictoHorarioException.class, () -> turnoService.reservarTurnoPresencial(request));
+        when(pacienteRepository.findById(pacienteId)).thenReturn(Optional.of(new Paciente()));
+        when(turnoRepository.findById(turnoId)).thenReturn(Optional.of(turnoOcupado));
+
+        assertThrows(ConflictoException.class, () -> turnoService.reservarTurnoPresencial(request));
         verify(turnoRepository, never()).save(any(Turno.class));
     }
 
@@ -128,10 +121,25 @@ class TurnoServicePresencialTest {
     void testReservarTurnoPresencial_PacienteInexistente() {
         Long pacienteIdInexistente = 999L;
         ReservaPresencialRequestDTO request = new ReservaPresencialRequestDTO(
-                pacienteIdInexistente, 1L, 1L, 1L, LocalDateTime.now().plusDays(1), "Motivo", "Obs"
+                10L, pacienteIdInexistente, "Motivo", "Obs"
         );
 
         when(pacienteRepository.findById(pacienteIdInexistente)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNoEncontradoException.class, () -> turnoService.reservarTurnoPresencial(request));
+    }
+
+    @Test
+    @DisplayName("reservarTurnoPresencial: Lanza RecursoNoEncontradoException cuando el slot no existe")
+    void testReservarTurnoPresencial_SlotInexistente() {
+        Long turnoIdInexistente = 888L;
+        Long pacienteId = 1L;
+        ReservaPresencialRequestDTO request = new ReservaPresencialRequestDTO(
+                turnoIdInexistente, pacienteId, "Motivo", "Obs"
+        );
+
+        when(pacienteRepository.findById(pacienteId)).thenReturn(Optional.of(new Paciente()));
+        when(turnoRepository.findById(turnoIdInexistente)).thenReturn(Optional.empty());
 
         assertThrows(RecursoNoEncontradoException.class, () -> turnoService.reservarTurnoPresencial(request));
     }

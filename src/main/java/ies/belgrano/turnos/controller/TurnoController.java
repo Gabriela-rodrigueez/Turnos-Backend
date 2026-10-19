@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ies.belgrano.turnos.dto.CambiarEstadoTurnoRequestDTO;
 import ies.belgrano.turnos.dto.ErrorResponseDTO;
 import ies.belgrano.turnos.dto.ReservaTurnoRequestDTO;
 import ies.belgrano.turnos.dto.TurnoResponseDTO;
+import ies.belgrano.turnos.security.annotation.EsMedicoOAdministrador;
 import ies.belgrano.turnos.security.annotation.EsPacienteOAdministrador;
 import ies.belgrano.turnos.security.annotation.EsPacienteOMedicoOAdministrador;
 import ies.belgrano.turnos.service.TurnoService;
@@ -93,5 +95,35 @@ public class TurnoController {
     ) {
         TurnoResponseDTO turnoCancelado = turnoService.cancelarTurno(id);
         return ResponseEntity.ok(turnoCancelado);
+    }
+
+    @PatchMapping("/{id}/estado")
+    @EsMedicoOAdministrador
+    @Operation(
+            summary = "Actualizar estado de un turno",
+            description = "Permite modificar el estado de un turno a ASISTIDO, CANCELADO o RESERVADO. Si el usuario es médico, solo puede modificar sus propios turnos."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estado del turno actualizado exitosamente",
+                    content = @Content(schema = @Schema(implementation = TurnoResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Estado inválido o no permitido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "No autenticado: Requiere token JWT",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: El turno pertenece a otro profesional",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Turno no encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "Conflicto: Transición de estado no válida",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    public ResponseEntity<TurnoResponseDTO> cambiarEstado(
+            @Parameter(description = "ID del turno a actualizar", required = true) @PathVariable Long id,
+            @Valid @RequestBody CambiarEstadoTurnoRequestDTO request
+    ) {
+        TurnoResponseDTO response = turnoService.cambiarEstado(id, request);
+        return ResponseEntity.ok(response);
     }
 }

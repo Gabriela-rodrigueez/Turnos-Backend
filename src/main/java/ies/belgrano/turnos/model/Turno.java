@@ -13,8 +13,15 @@ public class Turno {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "La fecha y hora del turno son obligatorias")
-    @Column(name = "fecha_hora", nullable = false)
+    @NotNull(message = "La fecha y hora de inicio del turno son obligatorias")
+    @Column(name = "fecha_hora_inicio", nullable = false)
+    private LocalDateTime fechaHoraInicio;
+
+    @NotNull(message = "La fecha y hora de fin del turno son obligatorias")
+    @Column(name = "fecha_hora_fin", nullable = false)
+    private LocalDateTime fechaHoraFin;
+
+    @Column(name = "fecha_hora")
     private LocalDateTime fechaHora;
 
     @Enumerated(EnumType.STRING)
@@ -52,6 +59,28 @@ public class Turno {
     @PrePersist
     protected void onCreate() {
         this.fechaCreacion = LocalDateTime.now();
+        if (this.fechaHoraInicio == null && this.fechaHora != null) {
+            this.fechaHoraInicio = this.fechaHora;
+        }
+        if (this.fechaHoraFin == null && this.fechaHoraInicio != null) {
+            this.fechaHoraFin = this.fechaHoraInicio.plusMinutes(15);
+        }
+        if (this.fechaHora == null && this.fechaHoraInicio != null) {
+            this.fechaHora = this.fechaHoraInicio;
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        if (this.fechaHoraInicio == null && this.fechaHora != null) {
+            this.fechaHoraInicio = this.fechaHora;
+        }
+        if (this.fechaHoraFin == null && this.fechaHoraInicio != null) {
+            this.fechaHoraFin = this.fechaHoraInicio.plusMinutes(15);
+        }
+        if (this.fechaHora == null && this.fechaHoraInicio != null) {
+            this.fechaHora = this.fechaHoraInicio;
+        }
     }
 
     public Turno() {
@@ -60,6 +89,21 @@ public class Turno {
     public Turno(Long id, LocalDateTime fechaHora, EstadoTurno estado, Paciente paciente, Profesional profesional, Especialidad especialidad, Sede sede, String motivoConsulta) {
         this.id = id;
         this.fechaHora = fechaHora;
+        this.fechaHoraInicio = fechaHora;
+        this.fechaHoraFin = fechaHora != null ? fechaHora.plusMinutes(15) : null;
+        this.estado = estado != null ? estado : EstadoTurno.DISPONIBLE;
+        this.paciente = paciente;
+        this.profesional = profesional;
+        this.especialidad = especialidad;
+        this.sede = sede;
+        this.motivoConsulta = motivoConsulta;
+    }
+
+    public Turno(Long id, LocalDateTime fechaHoraInicio, LocalDateTime fechaHoraFin, EstadoTurno estado, Paciente paciente, Profesional profesional, Especialidad especialidad, Sede sede, String motivoConsulta) {
+        this.id = id;
+        this.fechaHoraInicio = fechaHoraInicio;
+        this.fechaHoraFin = fechaHoraFin;
+        this.fechaHora = fechaHoraInicio;
         this.estado = estado != null ? estado : EstadoTurno.DISPONIBLE;
         this.paciente = paciente;
         this.profesional = profesional;
@@ -76,12 +120,38 @@ public class Turno {
         this.id = id;
     }
 
+    public LocalDateTime getFechaHoraInicio() {
+        return fechaHoraInicio != null ? fechaHoraInicio : fechaHora;
+    }
+
+    public void setFechaHoraInicio(LocalDateTime fechaHoraInicio) {
+        this.fechaHoraInicio = fechaHoraInicio;
+        this.fechaHora = fechaHoraInicio;
+        if (this.fechaHoraFin == null && fechaHoraInicio != null) {
+            this.fechaHoraFin = fechaHoraInicio.plusMinutes(15);
+        }
+    }
+
+    public LocalDateTime getFechaHoraFin() {
+        return fechaHoraFin;
+    }
+
+    public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
+        this.fechaHoraFin = fechaHoraFin;
+    }
+
     public LocalDateTime getFechaHora() {
-        return fechaHora;
+        return fechaHoraInicio != null ? fechaHoraInicio : fechaHora;
     }
 
     public void setFechaHora(LocalDateTime fechaHora) {
         this.fechaHora = fechaHora;
+        if (this.fechaHoraInicio == null) {
+            this.fechaHoraInicio = fechaHora;
+        }
+        if (this.fechaHoraFin == null && fechaHora != null) {
+            this.fechaHoraFin = fechaHora.plusMinutes(15);
+        }
     }
 
     public EstadoTurno getEstado() {

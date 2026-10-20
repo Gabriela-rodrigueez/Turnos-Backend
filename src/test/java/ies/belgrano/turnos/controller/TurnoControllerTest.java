@@ -28,17 +28,21 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ies.belgrano.turnos.TurnosApplication;
+import ies.belgrano.turnos.dto.CambiarEstadoTurnoRequestDTO;
 import ies.belgrano.turnos.dto.ReservaTurnoRequestDTO;
 import ies.belgrano.turnos.model.Especialidad;
+import ies.belgrano.turnos.model.EstadoTurno;
 import ies.belgrano.turnos.model.Paciente;
 import ies.belgrano.turnos.model.Profesional;
 import ies.belgrano.turnos.model.Rol;
 import ies.belgrano.turnos.model.Sede;
+import ies.belgrano.turnos.model.Turno;
 import ies.belgrano.turnos.model.Usuario;
 import ies.belgrano.turnos.repository.EspecialidadRepository;
 import ies.belgrano.turnos.repository.PacienteRepository;
 import ies.belgrano.turnos.repository.ProfesionalRepository;
 import ies.belgrano.turnos.repository.SedeRepository;
+import ies.belgrano.turnos.repository.TurnoRepository;
 import ies.belgrano.turnos.repository.UsuarioRepository;
 import ies.belgrano.turnos.security.JwtService;
 
@@ -70,14 +74,21 @@ class TurnoControllerTest {
     private SedeRepository sedeRepository;
 
     @Autowired
+    private TurnoRepository turnoRepository;
+
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
     private MockMvc mockMvc;
     private Paciente paciente;
     private Profesional profesional;
+    private Profesional profesional2;
     private Especialidad especialidad;
     private Sede sede;
     private String tokenPaciente;
+    private String tokenAdmin;
+    private String tokenMedico;
+    private String tokenMedico2;
 
     @BeforeEach
     void setUp() {
@@ -89,29 +100,53 @@ class TurnoControllerTest {
         especialidad = especialidadRepository.save(new Especialidad("Cardiología", "Estudio del corazón"));
         profesional = profesionalRepository.save(new Profesional(null, "Roberto", "Pérez", "20999888", "M-12345", "roberto@hospital.com", "261555666"));
         profesional.getEspecialidades().add(especialidad);
+        profesional2 = profesionalRepository.save(new Profesional(null, "Laura", "Méndez", "27888999", "M-67890", "laura@hospital.com", "261555777"));
+        profesional2.getEspecialidades().add(especialidad);
         sede = sedeRepository.save(new Sede("Hospital Notti", "Bandera de los Andes 2603", "2614132000", "Guaymallén"));
 
         Usuario usuario = new Usuario("carlos@gmail.com", "hash", Rol.PACIENTE);
         usuario.setPaciente(paciente);
         usuarioRepository.save(usuario);
         tokenPaciente = jwtService.generarToken(usuario);
+
+        Usuario admin = new Usuario("admin.turnos@saludmza.gob.ar", "hash", Rol.ADMINISTRADOR);
+        usuarioRepository.save(admin);
+        tokenAdmin = jwtService.generarToken(admin);
+
+        Usuario medico = new Usuario("roberto@hospital.com", "hash", Rol.MEDICO);
+        medico.setProfesional(profesional);
+        usuarioRepository.save(medico);
+        tokenMedico = jwtService.generarToken(medico);
+
+        Usuario medico2 = new Usuario("laura@hospital.com", "hash", Rol.MEDICO);
+        medico2.setProfesional(profesional2);
+        usuarioRepository.save(medico2);
+        tokenMedico2 = jwtService.generarToken(medico2);
     }
 
     @Test
     @DisplayName("Caso Exitoso: Reservar turno, consultar disponibilidad y cancelar turno")
     void testFlujoExitosoReservaDisponibilidadYCancelacion() throws Exception {
         LocalDateTime fechaFutura = LocalDateTime.now().plusDays(5).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        Turno slot = turnoRepository.save(new Turno(null, fechaFutura, fechaFutura.plusMinutes(30), EstadoTurno.DISPONIBLE, null, profesional, especialidad, sede, null));
+
+        // 1. Consultar Disponibilidad previa: el slot debe figurar como DISPONIBLE
+        mockMvc.perform(get("/api/v1/turnos/disponibilidad")
+                        .param("especialidadId", especialidad.getId().toString())
+                        .param("profesionalId", profesional.getId().toString())
+                        .param("sedeId", sede.getId().toString())
+                        .param("fecha", fechaFutura.toLocalDate().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(slot.getId().intValue())));
 
         ReservaTurnoRequestDTO request = new ReservaTurnoRequestDTO(
+                slot.getId(),
                 paciente.getId(),
-                profesional.getId(),
-                especialidad.getId(),
-                sede.getId(),
-                fechaFutura,
                 "Control de presión arterial"
         );
 
-        // 1. Reservar Turno (POST 201)
+        // 2. Reservar Turno (POST 201)
         String responseContent = mockMvc.perform(post("/api/v1/turnos/reserva")
                         .header("Authorization", "Bearer " + tokenPaciente)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -127,17 +162,16 @@ class TurnoControllerTest {
 
         Long turnoId = objectMapper.readTree(responseContent).get("id").asLong();
 
-        // 2. Consultar Disponibilidad (GET 200 - es @Publico)
+        // 3. Consultar Disponibilidad posterior: el slot ya NO debe figurar porque fue RESERVADO
         mockMvc.perform(get("/api/v1/turnos/disponibilidad")
                         .param("especialidadId", especialidad.getId().toString())
                         .param("profesionalId", profesional.getId().toString())
                         .param("sedeId", sede.getId().toString())
                         .param("fecha", fechaFutura.toLocalDate().toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(turnoId.intValue())));
+                .andExpect(jsonPath("$", hasSize(0)));
 
-        // 3. Cancelar Turno (PATCH 200)
+        // 4. Cancelar Turno (PATCH 200)
         mockMvc.perform(patch("/api/v1/turnos/" + turnoId + "/cancelar")
                         .header("Authorization", "Bearer " + tokenPaciente))
                 .andExpect(status().isOk())
@@ -174,13 +208,11 @@ class TurnoControllerTest {
     @DisplayName("Caso Conflicto de Horario: Intentar reservar dos turnos para el mismo profesional en el mismo horario debe retornar 409 Conflict")
     void testConflictoDeHorario() throws Exception {
         LocalDateTime fechaFutura = LocalDateTime.now().plusDays(3).withHour(11).withMinute(30).withSecond(0).withNano(0);
+        Turno slot = turnoRepository.save(new Turno(null, fechaFutura, fechaFutura.plusMinutes(30), EstadoTurno.DISPONIBLE, null, profesional, especialidad, sede, null));
 
         ReservaTurnoRequestDTO request1 = new ReservaTurnoRequestDTO(
+                slot.getId(),
                 paciente.getId(),
-                profesional.getId(),
-                especialidad.getId(),
-                sede.getId(),
-                fechaFutura,
                 "Primera consulta"
         );
 
@@ -191,13 +223,10 @@ class TurnoControllerTest {
                         .content(objectMapper.writeValueAsString(request1)))
                 .andExpect(status().isCreated());
 
-        // Segunda reserva en el MISMO horario para el MISMO profesional
+        // Segunda reserva en el MISMO slot
         ReservaTurnoRequestDTO request2 = new ReservaTurnoRequestDTO(
+                slot.getId(),
                 paciente.getId(),
-                profesional.getId(),
-                especialidad.getId(),
-                sede.getId(),
-                fechaFutura, // Misma fechaHora
                 "Segunda consulta solapada"
         );
 
@@ -206,8 +235,89 @@ class TurnoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request2)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status", is(409)))
-                .andExpect(jsonPath("$.error", is("Conflicto de Horario")))
-                .andExpect(jsonPath("$.message", containsString("El profesional seleccionado ya posee un turno agendado")));
+                .andExpect(jsonPath("$.status", is(409)));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/v1/turnos/{id}/estado - Admin cambia estado a ASISTIDO retorna 200 OK")
+    void testCambiarEstado_Admin_Exitoso() throws Exception {
+        LocalDateTime fecha = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
+        Turno turno = turnoRepository.save(new Turno(null, fecha, fecha.plusMinutes(30), EstadoTurno.RESERVADO, paciente, profesional, especialidad, sede, null));
+
+        CambiarEstadoTurnoRequestDTO request = new CambiarEstadoTurnoRequestDTO(EstadoTurno.ASISTIDO, "Consulta realizada");
+
+        mockMvc.perform(patch("/api/v1/turnos/" + turno.getId() + "/estado")
+                        .header("Authorization", "Bearer " + tokenAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(turno.getId().intValue())))
+                .andExpect(jsonPath("$.estado", is("ASISTIDO")));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/v1/turnos/{id}/estado - Médico cambia estado de su propio turno retorna 200 OK")
+    void testCambiarEstado_MedicoPropio_Exitoso() throws Exception {
+        LocalDateTime fecha = LocalDateTime.now().plusDays(2).withHour(11).withMinute(0);
+        Turno turno = turnoRepository.save(new Turno(null, fecha, fecha.plusMinutes(30), EstadoTurno.RESERVADO, paciente, profesional, especialidad, sede, null));
+
+        CambiarEstadoTurnoRequestDTO request = new CambiarEstadoTurnoRequestDTO(EstadoTurno.CANCELADO, "Cancelado por el médico");
+
+        mockMvc.perform(patch("/api/v1/turnos/" + turno.getId() + "/estado")
+                        .header("Authorization", "Bearer " + tokenMedico)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(turno.getId().intValue())))
+                .andExpect(jsonPath("$.estado", is("CANCELADO")));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/v1/turnos/{id}/estado - Médico intenta modificar turno de otro médico retorna 403 Forbidden")
+    void testCambiarEstado_MedicoOtro_Retorna403() throws Exception {
+        LocalDateTime fecha = LocalDateTime.now().plusDays(2).withHour(12).withMinute(0);
+        Turno turnoDeProfesional1 = turnoRepository.save(new Turno(null, fecha, fecha.plusMinutes(30), EstadoTurno.RESERVADO, paciente, profesional, especialidad, sede, null));
+
+        CambiarEstadoTurnoRequestDTO request = new CambiarEstadoTurnoRequestDTO(EstadoTurno.ASISTIDO, "Intento ilegítimo");
+
+        // Intentar modificar usando tokenMedico2 (Laura Méndez) sobre turno de profesional1 (Roberto Pérez)
+        mockMvc.perform(patch("/api/v1/turnos/" + turnoDeProfesional1.getId() + "/estado")
+                        .header("Authorization", "Bearer " + tokenMedico2)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is(403)));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/v1/turnos/{id}/estado - Paciente intenta modificar estado retorna 403 Forbidden")
+    void testCambiarEstado_Paciente_Retorna403() throws Exception {
+        LocalDateTime fecha = LocalDateTime.now().plusDays(2).withHour(14).withMinute(0);
+        Turno turno = turnoRepository.save(new Turno(null, fecha, fecha.plusMinutes(30), EstadoTurno.RESERVADO, paciente, profesional, especialidad, sede, null));
+
+        CambiarEstadoTurnoRequestDTO request = new CambiarEstadoTurnoRequestDTO(EstadoTurno.ASISTIDO, "Nota");
+
+        mockMvc.perform(patch("/api/v1/turnos/" + turno.getId() + "/estado")
+                        .header("Authorization", "Bearer " + tokenPaciente)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is(403)));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/v1/turnos/{id}/estado - Estado destino no permitido (DISPONIBLE) retorna 409 Conflict")
+    void testCambiarEstado_EstadoDestinoInvalido_Retorna409() throws Exception {
+        LocalDateTime fecha = LocalDateTime.now().plusDays(2).withHour(15).withMinute(0);
+        Turno turno = turnoRepository.save(new Turno(null, fecha, fecha.plusMinutes(30), EstadoTurno.RESERVADO, paciente, profesional, especialidad, sede, null));
+
+        CambiarEstadoTurnoRequestDTO request = new CambiarEstadoTurnoRequestDTO(EstadoTurno.DISPONIBLE, "Revertir a disponible no permitido por este endpoint");
+
+        mockMvc.perform(patch("/api/v1/turnos/" + turno.getId() + "/estado")
+                        .header("Authorization", "Bearer " + tokenAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status", is(409)));
     }
 }

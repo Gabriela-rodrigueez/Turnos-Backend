@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 public class TurnoResponseDTO {
 
     private Long id;
+    private LocalDateTime fechaHoraInicio;
+    private LocalDateTime fechaHoraFin;
     private LocalDateTime fechaHora;
     private EstadoTurno estado;
     private Long pacienteId;
@@ -28,6 +30,8 @@ public class TurnoResponseDTO {
     public static TurnoResponseDTO fromEntity(Turno turno) {
         TurnoResponseDTO dto = new TurnoResponseDTO();
         dto.setId(turno.getId());
+        dto.setFechaHoraInicio(turno.getFechaHoraInicio());
+        dto.setFechaHoraFin(turno.getFechaHoraFin());
         dto.setFechaHora(turno.getFechaHora());
         dto.setEstado(turno.getEstado());
         
@@ -65,8 +69,24 @@ public class TurnoResponseDTO {
         this.id = id;
     }
 
+    public LocalDateTime getFechaHoraInicio() {
+        return fechaHoraInicio != null ? fechaHoraInicio : fechaHora;
+    }
+
+    public void setFechaHoraInicio(LocalDateTime fechaHoraInicio) {
+        this.fechaHoraInicio = fechaHoraInicio;
+    }
+
+    public LocalDateTime getFechaHoraFin() {
+        return fechaHoraFin;
+    }
+
+    public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
+        this.fechaHoraFin = fechaHoraFin;
+    }
+
     public LocalDateTime getFechaHora() {
-        return fechaHora;
+        return fechaHoraInicio != null ? fechaHoraInicio : fechaHora;
     }
 
     public void setFechaHora(LocalDateTime fechaHora) {

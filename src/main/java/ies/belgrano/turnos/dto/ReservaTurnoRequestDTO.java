@@ -6,25 +6,29 @@ import java.time.LocalDateTime;
 
 public class ReservaTurnoRequestDTO {
 
+    private Long turnoId;
+
     @NotNull(message = "El ID del paciente es obligatorio")
     private Long pacienteId;
 
-    @NotNull(message = "El ID del profesional es obligatorio")
     private Long profesionalId;
 
-    @NotNull(message = "El ID de la especialidad es obligatorio")
     private Long especialidadId;
 
-    @NotNull(message = "El ID de la sede es obligatorio")
     private Long sedeId;
 
-    @NotNull(message = "La fecha y hora del turno son obligatorias")
     @Future(message = "La fecha y hora del turno deben ser en el futuro")
     private LocalDateTime fechaHora;
 
     private String motivoConsulta;
 
     public ReservaTurnoRequestDTO() {
+    }
+
+    public ReservaTurnoRequestDTO(Long turnoId, Long pacienteId, String motivoConsulta) {
+        this.turnoId = turnoId;
+        this.pacienteId = pacienteId;
+        this.motivoConsulta = motivoConsulta;
     }
 
     public ReservaTurnoRequestDTO(Long pacienteId, Long profesionalId, Long especialidadId, Long sedeId, LocalDateTime fechaHora, String motivoConsulta) {
@@ -34,6 +38,14 @@ public class ReservaTurnoRequestDTO {
         this.sedeId = sedeId;
         this.fechaHora = fechaHora;
         this.motivoConsulta = motivoConsulta;
+    }
+
+    public Long getTurnoId() {
+        return turnoId;
+    }
+
+    public void setTurnoId(Long turnoId) {
+        this.turnoId = turnoId;
     }
 
     public Long getPacienteId() {

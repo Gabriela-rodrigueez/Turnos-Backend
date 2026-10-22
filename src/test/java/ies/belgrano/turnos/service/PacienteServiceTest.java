@@ -37,44 +37,44 @@ class PacienteServiceTest {
     private PacienteServiceImpl pacienteService;
 
     @Test
-    @DisplayName("buscarPorCuil: Retorna PacienteResponseDTO cuando el paciente existe")
-    void testBuscarPorCuil_Exitoso() {
-        String cuil = "27351112229";
+    @DisplayName("buscarPorDni: Retorna PacienteResponseDTO cuando el paciente existe")
+    void testBuscarPorDni_Exitoso() {
+        String dni = "35111222";
         ObraSocial osep = new ObraSocial("OSEP Mendoza", "OSEP-001");
         osep.setId(1L);
-        Paciente paciente = new Paciente(1L, "Juan", "González", cuil, "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), osep);
+        Paciente paciente = new Paciente(1L, "Juan", "González", dni, "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), osep);
 
-        when(pacienteRepository.findByCuil(cuil)).thenReturn(Optional.of(paciente));
+        when(pacienteRepository.findByDni(dni)).thenReturn(Optional.of(paciente));
 
-        PacienteResponseDTO resultado = pacienteService.buscarPorCuil(cuil);
+        PacienteResponseDTO resultado = pacienteService.buscarPorDni(dni);
 
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
         assertEquals("Juan", resultado.getNombre());
         assertEquals("González", resultado.getApellido());
-        assertEquals(cuil, resultado.getCuil());
+        assertEquals(dni, resultado.getDni());
         assertEquals("OSEP Mendoza", resultado.getObraSocialNombre());
-        verify(pacienteRepository).findByCuil(cuil);
+        verify(pacienteRepository).findByDni(dni);
     }
 
     @Test
-    @DisplayName("buscarPorCuil: Lanza RecursoNoEncontradoException cuando el paciente no existe")
-    void testBuscarPorCuil_NoExiste_LanzaExcepcion() {
-        String cuil = "27999999990";
-        when(pacienteRepository.findByCuil(cuil)).thenReturn(Optional.empty());
+    @DisplayName("buscarPorDni: Lanza RecursoNoEncontradoException cuando el paciente no existe")
+    void testBuscarPorDni_NoExiste_LanzaExcepcion() {
+        String dni = "35111222";
+        when(pacienteRepository.findByDni(dni)).thenReturn(Optional.empty());
 
         RecursoNoEncontradoException ex = assertThrows(RecursoNoEncontradoException.class, () -> {
-            pacienteService.buscarPorCuil(cuil);
+            pacienteService.buscarPorDni(dni);
         });
 
-        assertEquals("No se encontró ningún paciente con el CUIL: " + cuil, ex.getMessage());
+        assertEquals("No se encontró ningún paciente con el DNI: " + dni, ex.getMessage());
     }
 
     @Test
-    @DisplayName("buscarPorCuil: Lanza IllegalArgumentException si el CUIL es nulo o vacío")
-    void testBuscarPorCuil_CuilInvalido_LanzaExcepcion() {
-        assertThrows(IllegalArgumentException.class, () -> pacienteService.buscarPorCuil(null));
-        assertThrows(IllegalArgumentException.class, () -> pacienteService.buscarPorCuil("   "));
+    @DisplayName("buscarPorDni: Lanza IllegalArgumentException si el DNI es nulo o vacío")
+    void testBuscarPorDni_DniInvalido_LanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> pacienteService.buscarPorDni(null));
+        assertThrows(IllegalArgumentException.class, () -> pacienteService.buscarPorDni("   "));
     }
 
     @Test

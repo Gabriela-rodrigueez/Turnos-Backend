@@ -23,12 +23,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1/auth")
-@Tag(name = "Autenticación", description = "API REST para Registro, Login y Gestión de Sesiones JWT")
+@Tag(name = "Autenticación", description = "API REST para Registro, Login y Gestión de Sesiones Jwt")
 public class AuthController {
 
     private final AuthService authService;

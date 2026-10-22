@@ -13,17 +13,23 @@ public class Paciente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Vinculación con el Usuario (importante para el login y registro)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    private Usuario usuario;
+
     @NotBlank(message = "El nombre es obligatorio")
     @Column(nullable = false)
-    private String nombre;
+    private String nombre; // Corregido el "nombre;1"
 
     @NotBlank(message = "El apellido es obligatorio")
     @Column(nullable = false)
     private String apellido;
 
-    @NotBlank(message = "El CUIL es obligatorio")
+    // Cambiado CUIL por DNI, como lo pediste
+    @NotBlank(message = "El DNI es obligatorio")
     @Column(nullable = false, unique = true)
-    private String cuil;
+    private String dni;
 
     @Column
     private String email;
@@ -60,23 +66,33 @@ public class Paciente {
     public Paciente() {
     }
 
-    public Paciente(Long id, String nombre, String apellido, String cuil, String email, String telefono, LocalDate fechaNacimiento, ObraSocial obraSocial) {
+    // Constructor actualizado con DNI en lugar de CUIL
+    public Paciente(Long id, String nombre, String apellido, String dni, String email, String telefono, LocalDate fechaNacimiento, ObraSocial obraSocial) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.cuil = cuil;
+        this.dni = dni;
         this.email = email;
         this.telefono = telefono;
         this.fechaNacimiento = fechaNacimiento;
         this.obraSocial = obraSocial;
     }
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     public String getNombre() {
@@ -95,12 +111,13 @@ public class Paciente {
         this.apellido = apellido;
     }
 
-    public String getCuil() {
-        return cuil;
+    // Getters y Setters para DNI
+    public String getDni() {
+        return dni;
     }
 
-    public void setCuil(String cuil) {
-        this.cuil = cuil;
+    public void setDni(String dni) {
+        this.dni = dni;
     }
 
     public String getEmail() {

@@ -10,6 +10,6 @@ public interface PacienteService {
     default List<TurnoResponseDTO> listarTurnosPorPaciente(Long pacienteId) {
         return obtenerTurnosPorPaciente(pacienteId);
     }
-    PacienteResponseDTO buscarPorCuil(String cuil);
+    PacienteResponseDTO buscarPorDni(String dni);
     List<PacienteResponseDTO> listarPacientes(String filtro);
 }

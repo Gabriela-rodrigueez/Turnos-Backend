@@ -50,13 +50,14 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Override
     @Transactional(readOnly = true)
-    public PacienteResponseDTO buscarPorCuil(String cuil) {
-        if (cuil == null || cuil.trim().isEmpty()) {
+    public PacienteResponseDTO buscarPorDni(String dni) {
+        if (dni == null || dni.trim().isEmpty()) {
             throw new IllegalArgumentException("El DNI de búsqueda no puede ser nulo o vacío.");
         }
 
-        Paciente paciente = pacienteRepository.findByCuil(cuil.trim())
-                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró ningún paciente con el DNI: " + cuil.trim()));
+        Paciente paciente = pacienteRepository.findByDni(dni.trim())
+                
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró ningún paciente con el DNI: " + dni.trim()));
 
         return PacienteResponseDTO.fromEntity(paciente);
     }

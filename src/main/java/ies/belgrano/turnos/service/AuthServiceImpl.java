@@ -6,12 +6,16 @@ import ies.belgrano.turnos.dto.RegistroRequestDTO;
 import ies.belgrano.turnos.exception.ConflictoException;
 import ies.belgrano.turnos.exception.NoAutorizadoException;
 import ies.belgrano.turnos.exception.RecursoNoEncontradoException;
+import ies.belgrano.turnos.model.Administrador; 
 import ies.belgrano.turnos.model.ObraSocial;
 import ies.belgrano.turnos.model.Paciente;
+import ies.belgrano.turnos.model.Profesional;
 import ies.belgrano.turnos.model.Rol;
 import ies.belgrano.turnos.model.Usuario;
+import ies.belgrano.turnos.repository.AdministradorRepository; 
 import ies.belgrano.turnos.repository.ObraSocialRepository;
 import ies.belgrano.turnos.repository.PacienteRepository;
+import ies.belgrano.turnos.repository.ProfesionalRepository;
 import ies.belgrano.turnos.repository.UsuarioRepository;
 import ies.belgrano.turnos.security.JwtService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,16 +29,22 @@ public class AuthServiceImpl implements AuthService {
     private final UsuarioRepository usuarioRepository;
     private final PacienteRepository pacienteRepository;
     private final ObraSocialRepository obraSocialRepository;
+    private final ProfesionalRepository profesionalRepository;
+    private final AdministradorRepository administradorRepository; 
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(UsuarioRepository usuarioRepository,
                            PacienteRepository pacienteRepository,
                            ObraSocialRepository obraSocialRepository,
+                           ProfesionalRepository profesionalRepository, 
+                           AdministradorRepository administradorRepository, 
                            JwtService jwtService) {
         this.usuarioRepository = usuarioRepository;
         this.pacienteRepository = pacienteRepository;
         this.obraSocialRepository = obraSocialRepository;
+        this.profesionalRepository = profesionalRepository;
+        this.administradorRepository = administradorRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
@@ -46,19 +56,22 @@ public class AuthServiceImpl implements AuthService {
             throw new ConflictoException("El correo electrónico " + dto.getEmail() + " ya se encuentra registrado.");
         }
 
-        if (pacienteRepository.findByCuil(dto.getCuil()).isPresent()) {
-            throw new ConflictoException("El CUIL " + dto.getCuil() + " ya se encuentra registrado en el sistema.");
+        // Corregido el paréntesis de dto.getDni()
+        if (pacienteRepository.findByDni(dto.getDni()).isPresent()) {
+            throw new ConflictoException("El DNI " + dto.getDni() + " ya se encuentra registrado en el sistema.");
         }
 
         Long osId = (dto.getObraSocialId() != null) ? dto.getObraSocialId() : 4L; // Default: Particular
         ObraSocial obraSocial = obraSocialRepository.findById(osId)
+                // Eliminada la palabra fantasma "mensaje:"
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró la Obra Social especificada."));
 
+        // Eliminado el "id: null, ..." que marcaba error
         Paciente paciente = new Paciente(
                 null,
                 dto.getNombre(),
                 dto.getApellido(),
-                dto.getCuil(),
+                dto.getDni(),
                 dto.getEmail(),
                 dto.getTelefono(),
                 dto.getFechaNacimiento(),
@@ -75,6 +88,7 @@ public class AuthServiceImpl implements AuthService {
 
         String passwordHash = passwordEncoder.encode(dto.getPassword());
         Usuario usuario = new Usuario(dto.getEmail(), passwordHash, Rol.PACIENTE);
+        usuario.setDni(dto.getDni());
         usuario.setPaciente(paciente);
         usuario = usuarioRepository.save(usuario);
 
@@ -87,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
                 paciente.getId(),
                 null,
                 nombreCompleto,
-                usuario.getEmail(),
+                usuario.getDni(),
                 usuario.getRol()
         );
     }
@@ -95,38 +109,120 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponseDTO login(LoginRequestDTO dto) {
-    	Usuario usuario = usuarioRepository.findByPacienteCuil(dto.getIdentificador())
-                .orElseThrow(() -> new NoAutorizadoException("CUIL no registrado o contraseña incorrecta."));
-
-        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {
-            throw new NoAutorizadoException("CUIL no registrado o contraseña incorrecta.");
+        
+        // 1. PRIMERO VERIFICAMOS SI ESTÁ INTENTANDO ENTRAR UN MÉDICO (CON MATRÍCULA)
+        if (dto.getMatricula() != null && !dto.getMatricula().isEmpty()) {
+            
+            Profesional profesional = profesionalRepository.findByMatricula(dto.getMatricula())
+                .orElseThrow(() -> new NoAutorizadoException("Matrícula no encontrada."));
+            
+            Usuario usuario = usuarioRepository.findByProfesional(profesional)
+                .orElseThrow(() -> new NoAutorizadoException("Usuario médico no encontrado."));
+                
+            if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {
+                throw new NoAutorizadoException("Contraseña incorrecta.");
+            }
+            
+            if (!Boolean.TRUE.equals(usuario.getActivo())) {
+                throw new NoAutorizadoException("La cuenta de usuario se encuentra deshabilitada.");
+            }
+            
+            String token = jwtService.generarToken(usuario);
+            String nombreCompleto = "Dr/a. " + profesional.getNombre() + " " + profesional.getApellido();
+            
+            return new LoginResponseDTO(
+                    token,
+                    usuario.getId(),
+                    null, // null porque no es paciente
+                    profesional.getId(),
+                    nombreCompleto,
+                    usuario.getDni(),
+                    usuario.getRol()
+            );
         }
-
-        if (!Boolean.TRUE.equals(usuario.getActivo())) {
-            throw new NoAutorizadoException("La cuenta de usuario se encuentra deshabilitada.");
+        
+        // 2. SEGUNDO VERIFICAMOS SI ESTÁ INTENTANDO ENTRAR UN ADMINISTRADOR (CON LEGAJO)
+        else if (dto.getLegajo() != null && !dto.getLegajo().isEmpty()) {
+            System.out.println("\n--- INICIANDO INTENTO DE LOGIN ADMIN ---");
+            System.out.println("1. Legajo recibido desde Angular: [" + dto.getLegajo() + "]");
+            
+            Administrador admin = administradorRepository.findByLegajo(dto.getLegajo())
+                .orElseThrow(() -> {
+                    System.out.println("-> FALLA: No se encontró el legajo en la tabla 'administradores'.");
+                    return new NoAutorizadoException("Legajo no encontrado.");
+                });
+            System.out.println("2. ¡Legajo encontrado en BD! Buscando usuario enlazado...");
+                
+            Usuario usuario = usuarioRepository.findByAdministrador(admin)
+                .orElseThrow(() -> {
+                    System.out.println("-> FALLA: El administrador existe, pero su ID no está enlazado en la tabla 'usuarios'.");
+                    return new NoAutorizadoException("Usuario administrador no encontrado.");
+                });
+            System.out.println("3. ¡Usuario encontrado! Verificando la contraseña...");
+                
+            if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {
+                System.out.println("-> FALLA: El hash de la contraseña no coincide.");
+                throw new NoAutorizadoException("Contraseña incorrecta.");
+            }
+            
+            if (!Boolean.TRUE.equals(usuario.getActivo())) {
+                throw new NoAutorizadoException("La cuenta de usuario se encuentra deshabilitada.");
+            }
+            
+            System.out.println("4. ¡ÉXITO! Todo coincide perfecto. Permitiendo acceso...");
+            String token = jwtService.generarToken(usuario);
+            String nombreCompleto = admin.getNombre() + " " + admin.getApellido();
+            
+            return new LoginResponseDTO(
+                    token,
+                    usuario.getId(),
+                    null,
+                    null,
+                    nombreCompleto,
+                    usuario.getDni(),
+                    usuario.getRol()
+            );
         }
+        
+        // 3. SI NO ENVIÓ MATRÍCULA NI LEGAJO, ENTONCES ESTÁ INTENTANDO ENTRAR UN PACIENTE (CON DNI)
+        else if (dto.getDni() != null && !dto.getDni().isEmpty()) {
+            
+            Usuario usuario = usuarioRepository.findByDni(dto.getDni())
+                    .orElseThrow(() -> new NoAutorizadoException("DNI o contraseña incorrectos."));
 
-        String token = jwtService.generarToken(usuario);
+            if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {
+                throw new NoAutorizadoException("DNI o contraseña incorrectos.");
+            }
 
-        Long pacienteId = usuario.getPaciente() != null ? usuario.getPaciente().getId() : null;
-        Long profesionalId = usuario.getProfesional() != null ? usuario.getProfesional().getId() : null;
-        String nombreCompleto = "Usuario Sistema";
+            if (!Boolean.TRUE.equals(usuario.getActivo())) {
+                throw new NoAutorizadoException("La cuenta de usuario se encuentra deshabilitada.");
+            }
 
-        if (usuario.getPaciente() != null) {
-            nombreCompleto = usuario.getPaciente().getNombre() + " " + usuario.getPaciente().getApellido();
-        } else if (usuario.getProfesional() != null) {
-            nombreCompleto = "Dr/a. " + usuario.getProfesional().getNombre() + " " + usuario.getProfesional().getApellido();
+            String token = jwtService.generarToken(usuario);
+            
+            Long pacienteId = usuario.getPaciente() != null ? usuario.getPaciente().getId() : null;
+            Long profesionalId = usuario.getProfesional() != null ? usuario.getProfesional().getId() : null;
+            
+            String nombreCompleto = "Usuario Sistema";
+            if (usuario.getPaciente() != null) {
+                nombreCompleto = usuario.getPaciente().getNombre() + " " + usuario.getPaciente().getApellido();
+            } else if (usuario.getProfesional() != null) {
+                nombreCompleto = "Dr/a. " + usuario.getProfesional().getNombre() + " " + usuario.getProfesional().getApellido();
+            }
+
+            return new LoginResponseDTO(
+                    token,
+                    usuario.getId(),
+                    pacienteId,
+                    profesionalId,
+                    nombreCompleto,
+                    usuario.getDni(),
+                    usuario.getRol()
+            );
         }
-
-        return new LoginResponseDTO(
-                token,
-                usuario.getId(),
-                pacienteId,
-                profesionalId,
-                nombreCompleto,
-                usuario.getEmail(),
-                usuario.getRol()
-        );
+        
+        // 4. SI NO MANDÓ NADA
+        throw new NoAutorizadoException("Debe ingresar credenciales válidas.");
     }
 
     @Override
@@ -144,6 +240,8 @@ public class AuthServiceImpl implements AuthService {
             nombreCompleto = usuario.getPaciente().getNombre() + " " + usuario.getPaciente().getApellido();
         } else if (usuario.getProfesional() != null) {
             nombreCompleto = "Dr/a. " + usuario.getProfesional().getNombre() + " " + usuario.getProfesional().getApellido();
+        } else if (usuario.getAdministrador() != null) {
+            nombreCompleto = usuario.getAdministrador().getNombre() + " " + usuario.getAdministrador().getApellido();
         }
 
         return new LoginResponseDTO(
@@ -152,7 +250,7 @@ public class AuthServiceImpl implements AuthService {
                 pacienteId,
                 profesionalId,
                 nombreCompleto,
-                usuario.getEmail(),
+                usuario.getDni(),
                 usuario.getRol()
         );
     }

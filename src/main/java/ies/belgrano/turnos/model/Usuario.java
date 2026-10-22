@@ -30,6 +30,10 @@ public class Usuario {
     private String email;
 
     @NotBlank
+    @Column(nullable = false, unique = true)
+    private String dni;
+
+    @NotBlank
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -50,6 +54,10 @@ public class Usuario {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profesional_id")
     private Profesional profesional;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "administrador_id")
+    private Administrador administrador;
 
     public Usuario() {
     }
@@ -125,4 +133,21 @@ public class Usuario {
     public void setProfesional(Profesional profesional) {
         this.profesional = profesional;
     }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+
+    public Administrador getAdministrador() {
+        return administrador;
+    }
+
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
+    }
+
 }

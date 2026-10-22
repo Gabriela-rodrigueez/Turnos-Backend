@@ -83,7 +83,7 @@ class AuthControllerTest {
         String token = objectMapper.readTree(regResponse).get("token").asText();
 
         // 2. Login (POST 200)
-        LoginRequestDTO loginReq = new LoginRequestDTO("nuevo.paciente@gmail.com", "Password123");
+        LoginRequestDTO loginReq = new LoginRequestDTO("nuevo.paciente@gmail.com", null , null ,"Password123");
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginReq)))

@@ -14,10 +14,10 @@ public class RegistroRequestDTO {
     @Size(min = 2, max = 50, message = "El apellido debe tener entre 2 y 50 caracteres")
     private String apellido;
 
-    @JsonProperty("cuil")
-    @NotBlank(message = "El CUIL es obligatorio")
-    @Pattern(regexp = "^\\d{11}$", message = "El CUIL debe tener 11 dígitos numéricos")
-    private String cuil;
+    @JsonProperty("dni")
+    @NotBlank(message = "El DNI es obligatorio")
+    @Pattern(regexp = "^\\d{8}$", message = "El DNI debe tener 8 dígitos numéricos")
+    private String dni;
 
     @NotBlank(message = "El correo electrónico es obligatorio")
     @Email(message = "El formato de correo electrónico es inválido")
@@ -32,7 +32,7 @@ public class RegistroRequestDTO {
 
     @NotNull(message = "La fecha de nacimiento es obligatoria")
     @Past(message = "La fecha de nacimiento debe ser una fecha pasada")
-    @JsonProperty("dob")
+    @JsonProperty("fechaNacimiento")
     private LocalDate fechaNacimiento;
 
     private Long obraSocialId;
@@ -55,10 +55,10 @@ public class RegistroRequestDTO {
     }
 
     
-    public RegistroRequestDTO(String nombre, String apellido, String cuil, String email, String password, String telefono, LocalDate fechaNacimiento, Long obraSocialId) {
+    public RegistroRequestDTO(String nombre, String apellido, String dni, String email, String password, String telefono, LocalDate fechaNacimiento, Long obraSocialId) {
         this.nombre = nombre;
         this.apellido = apellido;
-        this.cuil = cuil;
+        this.dni = dni;
         this.email = email;
         this.password = password;
         this.telefono = telefono;
@@ -74,8 +74,8 @@ public class RegistroRequestDTO {
     public String getApellido() { return apellido; }
     public void setApellido(String apellido) { this.apellido = apellido; }
 
-    public String getCuil() { return cuil; }
-    public void setCuil(String cuil) { this.cuil = cuil; }
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

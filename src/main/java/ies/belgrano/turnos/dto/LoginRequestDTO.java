@@ -4,8 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequestDTO {
 
-    @NotBlank(message = "El identificador (CUIL, Legajo o Matrícula) es obligatorio")
-    private String identificador;
+    private String dni;   
+    private String matricula;
+    private String legajo;
 
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
@@ -13,17 +14,35 @@ public class LoginRequestDTO {
     public LoginRequestDTO() {
     }
 
-    public LoginRequestDTO(String identificador, String password) {
-        this.identificador = identificador;
+    public LoginRequestDTO(String dni, String matricula,String legajo, String password) {
+        this.dni = dni;
+        this.matricula = matricula;
+        this.legajo = legajo;
         this.password = password;
     }
 
-    public String getIdentificador() {
-        return identificador;
+    public String getDni() {
+        return dni;
     }
 
-    public void setIdentificador(String identificador) {
-        this.identificador = identificador;
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+
+    public String getMatricula() {
+        return matricula;
+    }
+
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
+    }
+
+    public String getLegajo() {
+        return legajo;
+    }
+
+    public void setLegajo(String legajo) {
+        this.legajo = legajo;
     }
 
     public String getPassword() {

@@ -49,13 +49,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesión", description = "Autentica al usuario por correo electrónico y contraseña, devolviendo el token JWT firmado.")
+    @Operation(
+        summary = "Iniciar sesión (Polimórfico)",
+        description = "Autentica al usuario mediante DNI (pacientes), Matrícula (médicos) o Legajo (administradores) junto con su contraseña, devolviendo el token JWT firmado con claims de rol e identidad."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Inicio de sesión exitoso",
                     content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Formato de datos de login inválidos",
+            @ApiResponse(responseCode = "400", description = "Formato de datos de login inválidos (contraseña faltante)",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas o cuenta deshabilitada",
+            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas, identificador no provisto o cuenta deshabilitada",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {

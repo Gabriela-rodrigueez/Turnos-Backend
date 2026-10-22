@@ -39,11 +39,25 @@ public class JwtService {
                 .issuedAt(ahora)
                 .expiration(expiracion);
 
+        if (usuario.getLegajo() != null) {
+            builder.claim("legajo", usuario.getLegajo());
+        }
         if (usuario.getPaciente() != null) {
             builder.claim("pacienteId", usuario.getPaciente().getId());
-        }
-        if (usuario.getProfesional() != null) {
+            if (usuario.getPaciente().getDni() != null) {
+                builder.claim("dni", usuario.getPaciente().getDni());
+            }
+            String nombreCompleto = usuario.getPaciente().getNombre() + " " + usuario.getPaciente().getApellido();
+            builder.claim("nombreCompleto", nombreCompleto);
+        } else if (usuario.getProfesional() != null) {
             builder.claim("profesionalId", usuario.getProfesional().getId());
+            if (usuario.getProfesional().getMatricula() != null) {
+                builder.claim("matricula", usuario.getProfesional().getMatricula());
+            }
+            String nombreCompleto = "Dr/a. " + usuario.getProfesional().getNombre() + " " + usuario.getProfesional().getApellido();
+            builder.claim("nombreCompleto", nombreCompleto);
+        } else {
+            builder.claim("nombreCompleto", "Administrador");
         }
 
         return builder.signWith(secretKey).compact();
@@ -79,6 +93,18 @@ public class JwtService {
     public Long extraerProfesionalId(String token) {
         Number id = obtenerClaims(token).get("profesionalId", Number.class);
         return id != null ? id.longValue() : null;
+    }
+
+    public String extraerLegajo(String token) {
+        return obtenerClaims(token).get("legajo", String.class);
+    }
+
+    public String extraerDni(String token) {
+        return obtenerClaims(token).get("dni", String.class);
+    }
+
+    public String extraerMatricula(String token) {
+        return obtenerClaims(token).get("matricula", String.class);
     }
 
     public boolean validarToken(String token) {

@@ -27,7 +27,17 @@ import ies.belgrano.turnos.TurnosApplication;
 import ies.belgrano.turnos.dto.LoginRequestDTO;
 import ies.belgrano.turnos.dto.RegistroRequestDTO;
 import ies.belgrano.turnos.model.ObraSocial;
+import ies.belgrano.turnos.model.Paciente;
+import ies.belgrano.turnos.model.Profesional;
+import ies.belgrano.turnos.model.Rol;
+import ies.belgrano.turnos.model.Usuario;
 import ies.belgrano.turnos.repository.ObraSocialRepository;
+import ies.belgrano.turnos.repository.PacienteRepository;
+import ies.belgrano.turnos.repository.ProfesionalRepository;
+import ies.belgrano.turnos.repository.UsuarioRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Map;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -42,7 +52,17 @@ class AuthControllerTest {
     @Autowired
     private ObraSocialRepository obraSocialRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PacienteRepository pacienteRepository;
+
+    @Autowired
+    private ProfesionalRepository profesionalRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private MockMvc mockMvc;
 
@@ -82,8 +102,8 @@ class AuthControllerTest {
 
         String token = objectMapper.readTree(regResponse).get("token").asText();
 
-        // 2. Login (POST 200)
-        LoginRequestDTO loginReq = new LoginRequestDTO("nuevo.paciente@gmail.com", "Password123");
+        // 2. Login con DNI del paciente (POST 200)
+        LoginRequestDTO loginReq = LoginRequestDTO.paraPaciente("39999888", "Password123");
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginReq)))
@@ -98,6 +118,119 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email", is("nuevo.paciente@gmail.com")))
                 .andExpect(jsonPath("$.rol", is("PACIENTE")));
+    }
+
+    @Test
+    @DisplayName("Caso Exitoso Polimórfico: Login de Paciente utilizando DNI en el payload")
+    void testLoginPolimorficoConDniPaciente() throws Exception {
+        ObraSocial os = obraSocialRepository.save(new ObraSocial("OSEP DNI", "OSEP-DNI"));
+
+        RegistroRequestDTO registroReq = new RegistroRequestDTO(
+                "Carlos",
+                "Gómez",
+                "37111222",
+                "carlos.gomez@test.com",
+                "Password123",
+                "261444111",
+                LocalDate.of(1992, 4, 10),
+                os.getId()
+        );
+
+        mockMvc.perform(post("/api/v1/auth/registro")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registroReq)))
+                .andExpect(status().isCreated());
+
+        // Enviar payload con clave "dni"
+        Map<String, String> payloadDni = Map.of(
+                "dni", "37111222",
+                "password", "Password123"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payloadDni)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token", notNullValue()))
+                .andExpect(jsonPath("$.email", is("carlos.gomez@test.com")))
+                .andExpect(jsonPath("$.rol", is("PACIENTE")));
+    }
+
+    @Test
+    @DisplayName("Caso Exitoso Polimórfico: Login de Médico utilizando Matrícula en el payload")
+    void testLoginPolimorficoConMatriculaMedico() throws Exception {
+        Profesional prof = new Profesional(null, "Roberto", "Pérez", "20111222", "M-77889", "roberto.perez@hospital.com", "261555111");
+        prof = profesionalRepository.save(prof);
+
+        Usuario userMedico = new Usuario("roberto.perez@hospital.com", passwordEncoder.encode("Password123"), Rol.MEDICO);
+        userMedico.setProfesional(prof);
+        usuarioRepository.save(userMedico);
+
+        // Enviar payload con clave "matricula"
+        Map<String, String> payloadMatricula = Map.of(
+                "matricula", "M-77889",
+                "password", "Password123"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payloadMatricula)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token", notNullValue()))
+                .andExpect(jsonPath("$.profesionalId", is(prof.getId().intValue())))
+                .andExpect(jsonPath("$.rol", is("MEDICO")));
+    }
+
+    @Test
+    @DisplayName("Caso Exitoso Polimórfico: Login de Administrador utilizando Legajo en el payload")
+    void testLoginPolimorficoConLegajoAdmin() throws Exception {
+        Usuario adminUser = new Usuario("admin.test@saludmza.gob.ar", passwordEncoder.encode("Password123"), Rol.ADMINISTRADOR, "LEG-9988");
+        usuarioRepository.save(adminUser);
+
+        // Enviar payload con clave "legajo"
+        Map<String, String> payloadLegajo = Map.of(
+                "legajo", "LEG-9988",
+                "password", "Password123"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payloadLegajo)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token", notNullValue()))
+                .andExpect(jsonPath("$.email", is("admin.test@saludmza.gob.ar")))
+                .andExpect(jsonPath("$.rol", is("ADMINISTRADOR")));
+    }
+
+    @Test
+    @DisplayName("Caso 401 Unauthorized: Login con credenciales incorrectas")
+    void testLoginPolimorficoCredencialesIncorrectasRetorna401() throws Exception {
+        Map<String, String> payloadErroneo = Map.of(
+                "dni", "99999999",
+                "password", "ClaveErronea"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payloadErroneo)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status", is(401)))
+                .andExpect(jsonPath("$.error", is("No Autorizado")));
+    }
+
+    @Test
+    @DisplayName("Caso 401 Unauthorized: Login sin ningún identificador provisto")
+    void testLoginSinIdentificadorRetorna401() throws Exception {
+        Map<String, String> payloadSinId = Map.of(
+                "password", "Password123"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payloadSinId)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status", is(401)))
+                .andExpect(jsonPath("$.error", is("No Autorizado")));
     }
 
     @Test

@@ -37,6 +37,9 @@ public class Usuario {
     @Column(nullable = false)
     private Rol rol;
 
+    @Column(name = "legajo", unique = true)
+    private String legajo;
+
     @Column(nullable = false)
     private Boolean activo = true;
 
@@ -60,6 +63,23 @@ public class Usuario {
         this.rol = rol;
         this.activo = true;
         this.fechaCreacion = LocalDateTime.now();
+    }
+
+    public Usuario(String email, String passwordHash, Rol rol, String legajo) {
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.rol = rol;
+        this.legajo = legajo;
+        this.activo = true;
+        this.fechaCreacion = LocalDateTime.now();
+    }
+
+    public String getLegajo() {
+        return legajo;
+    }
+
+    public void setLegajo(String legajo) {
+        this.legajo = legajo;
     }
 
     public Long getId() {

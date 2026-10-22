@@ -50,15 +50,15 @@ INSERT INTO turnos (id, fecha_hora, fecha_hora_inicio, fecha_hora_fin, estado, p
 VALUES (4, '2026-10-06 10:00:00', '2026-10-06 10:00:00', '2026-10-06 10:30:00', 'DISPONIBLE', NULL, 2, 2, 2, NULL, 'Turno libre pediatría', CURRENT_TIMESTAMP);
 
 -- 8. USUARIOS INICIALES (Contraseña por defecto: Password123)
--- Hash BCrypt para 'Password123': $2a$10$DOWV34/Jc71tq.F.vW/w4eL2mK0P.Qy6y4W.7Z5o9j1mK0P.Qy6y4 (o equivalente)
-INSERT INTO usuarios (id, email, password_hash, rol, activo, fecha_creacion, paciente_id, profesional_id)
-VALUES (1, 'admin@saludmza.gob.ar', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'ADMINISTRADOR', true, CURRENT_TIMESTAMP, NULL, NULL);
+-- Hash BCrypt para 'Password123': $2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m
+INSERT INTO usuarios (id, email, password_hash, rol, legajo, activo, fecha_creacion, paciente_id, profesional_id)
+VALUES (1, 'admin@saludmza.gob.ar', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m', 'ADMINISTRADOR', '8841', true, CURRENT_TIMESTAMP, NULL, NULL);
 
-INSERT INTO usuarios (id, email, password_hash, rol, activo, fecha_creacion, paciente_id, profesional_id)
-VALUES (2, 'juan.gonzalez@gmail.com', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'PACIENTE', true, CURRENT_TIMESTAMP, 1, NULL);
+INSERT INTO usuarios (id, email, password_hash, rol, legajo, activo, fecha_creacion, paciente_id, profesional_id)
+VALUES (2, 'juan.gonzalez@gmail.com', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m', 'PACIENTE', NULL, true, CURRENT_TIMESTAMP, 1, NULL);
 
-INSERT INTO usuarios (id, email, password_hash, rol, activo, fecha_creacion, paciente_id, profesional_id)
-VALUES (3, 'roberto.perez@hospital.com', '$2a$10$7R9rR.H6c7wEaQ07r1L.6.14.e/N2g5N4Z.4Q0n9V6G7e5', 'MEDICO', true, CURRENT_TIMESTAMP, NULL, 1);
+INSERT INTO usuarios (id, email, password_hash, rol, legajo, activo, fecha_creacion, paciente_id, profesional_id)
+VALUES (3, 'roberto.perez@hospital.com', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m', 'MEDICO', NULL, true, CURRENT_TIMESTAMP, NULL, 1);
 
 
 -- REINICIO DE SECUENCIAS H2 PARA PREVENIR COLISIONES DE ID

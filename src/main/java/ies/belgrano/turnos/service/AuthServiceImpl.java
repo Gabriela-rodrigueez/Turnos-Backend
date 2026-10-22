@@ -19,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -89,12 +92,21 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponseDTO login(LoginRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new NoAutorizadoException("Correo electrónico o contraseña incorrectos."));
+        Optional<Usuario> usuarioOpt;
 
-        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {
-            throw new NoAutorizadoException("Correo electrónico o contraseña incorrectos.");
+        if (dto.getDni() != null && !dto.getDni().isBlank()) {
+            usuarioOpt = usuarioRepository.findByPacienteDni(dto.getDni().trim());
+        } else if (dto.getMatricula() != null && !dto.getMatricula().isBlank()) {
+            usuarioOpt = usuarioRepository.findByProfesionalMatricula(dto.getMatricula().trim());
+        } else if (dto.getLegajo() != null && !dto.getLegajo().isBlank()) {
+            usuarioOpt = usuarioRepository.findByLegajoIgnoreCase(dto.getLegajo().trim());
+        } else {
+            throw new NoAutorizadoException("Debe ingresar un identificador de acceso válido (DNI, matrícula o legajo).");
         }
+
+        Usuario usuario = usuarioOpt
+                .filter(u -> passwordEncoder.matches(dto.getPassword(), u.getPasswordHash()))
+                .orElseThrow(() -> new NoAutorizadoException("Identificador o contraseña incorrectos."));
 
         if (!Boolean.TRUE.equals(usuario.getActivo())) {
             throw new NoAutorizadoException("La cuenta de usuario se encuentra deshabilitada.");

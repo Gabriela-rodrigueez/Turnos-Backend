@@ -1,21 +1,30 @@
 package ies.belgrano.turnos.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ies.belgrano.turnos.dto.ErrorResponseDTO;
 import ies.belgrano.turnos.dto.GeneracionSlotsResponseDTO;
 import ies.belgrano.turnos.dto.GenerarSlotsRequestDTO;
+import ies.belgrano.turnos.dto.TurnoResponseDTO;
+import ies.belgrano.turnos.model.EstadoTurno;
 import ies.belgrano.turnos.security.annotation.EsMedicoOAdministrador;
 import ies.belgrano.turnos.service.TurnoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,6 +43,35 @@ public class AgendaController {
 
     public AgendaController(TurnoService turnoService) {
         this.turnoService = turnoService;
+    }
+
+    @GetMapping
+    @EsMedicoOAdministrador
+    @Operation(
+            summary = "Consultar turnos y slots de la agenda médica",
+            description = "Permite a médicos y administradores consultar la agenda con todos sus estados (DISPONIBLE, RESERVADO, ASISTIDO, CANCELADO). Si el usuario es médico, solo puede consultar su propia agenda."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Consulta de agenda exitosa",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TurnoResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "No autenticado: Requiere token JWT",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: El usuario no posee rol MEDICO ni ADMINISTRADOR",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    public ResponseEntity<List<TurnoResponseDTO>> consultarAgenda(
+            @Parameter(description = "ID opcional de la especialidad") @RequestParam(required = false) Long especialidadId,
+            @Parameter(description = "ID opcional del profesional") @RequestParam(required = false) Long profesionalId,
+            @Parameter(description = "ID opcional de la sede hospitalaria") @RequestParam(required = false) Long sedeId,
+            @Parameter(description = "Fecha opcional de consulta (Formato: YYYY-MM-DD)")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @Parameter(description = "Estado opcional del turno (DISPONIBLE, RESERVADO, ASISTIDO, CANCELADO)")
+            @RequestParam(required = false) EstadoTurno estado
+    ) {
+        List<TurnoResponseDTO> agenda = turnoService.consultarAgenda(especialidadId, profesionalId, sedeId, fecha, estado);
+        return ResponseEntity.ok(agenda);
     }
 
     @PostMapping("/slots/generar")

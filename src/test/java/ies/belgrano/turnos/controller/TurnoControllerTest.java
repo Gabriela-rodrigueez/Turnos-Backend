@@ -320,4 +320,49 @@ class TurnoControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status", is(409)));
     }
+
+    @Test
+    @DisplayName("GET /api/v1/turnos/disponibilidad - No retorna turnos expirados o pasados")
+    void testConsultarDisponibilidad_ExcluyeTurnosExpirados() throws Exception {
+        LocalDateTime fechaPasada = LocalDateTime.now().minusDays(2).withHour(10).withMinute(0);
+        LocalDateTime fechaFutura = LocalDateTime.now().plusDays(3).withHour(10).withMinute(0);
+
+        Turno turnoExpirado = turnoRepository.save(new Turno(null, fechaPasada, fechaPasada.plusMinutes(30), EstadoTurno.DISPONIBLE, null, profesional, especialidad, sede, null));
+        Turno turnoFuturo = turnoRepository.save(new Turno(null, fechaFutura, fechaFutura.plusMinutes(30), EstadoTurno.DISPONIBLE, null, profesional, especialidad, sede, null));
+
+        // Consulta general sin fecha: solo debe venir el turno futuro
+        mockMvc.perform(get("/api/v1/turnos/disponibilidad")
+                        .param("especialidadId", especialidad.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(turnoFuturo.getId().intValue())));
+
+        // Consulta filtrando por fecha pasada: debe retornar lista vacía
+        mockMvc.perform(get("/api/v1/turnos/disponibilidad")
+                        .param("especialidadId", especialidad.getId().toString())
+                        .param("fecha", fechaPasada.toLocalDate().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/turnos/reserva - Intento de reservar turno expirado por ID retorna 409 Conflict")
+    void testReservaTurno_TurnoExpirado_Retorna409Conflict() throws Exception {
+        LocalDateTime fechaPasada = LocalDateTime.now().minusDays(1).withHour(10).withMinute(0);
+        Turno turnoExpirado = turnoRepository.save(new Turno(null, fechaPasada, fechaPasada.plusMinutes(30), EstadoTurno.DISPONIBLE, null, profesional, especialidad, sede, null));
+
+        ReservaTurnoRequestDTO request = new ReservaTurnoRequestDTO(
+                turnoExpirado.getId(),
+                paciente.getId(),
+                "Intento de reserva retroactiva"
+        );
+
+        mockMvc.perform(post("/api/v1/turnos/reserva")
+                        .header("Authorization", "Bearer " + tokenPaciente)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status", is(409)))
+                .andExpect(jsonPath("$.message", containsString("expirado")));
+    }
 }

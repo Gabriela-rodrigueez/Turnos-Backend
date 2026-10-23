@@ -215,19 +215,66 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     @Transactional(readOnly = true)
     public List<TurnoResponseDTO> consultarDisponibilidad(Long especialidadId, Long profesionalId, Long sedeId, LocalDate fecha) {
-        LocalDateTime inicioDia = fecha != null ? fecha.atStartOfDay() : null;
-        LocalDateTime finDia = fecha != null ? fecha.atTime(LocalTime.MAX) : null;
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime inicioDia;
+        LocalDateTime finDia;
+
+        if (fecha != null) {
+            if (fecha.isBefore(ahora.toLocalDate())) {
+                return List.of();
+            } else if (fecha.isEqual(ahora.toLocalDate())) {
+                inicioDia = ahora;
+                finDia = fecha.atTime(LocalTime.MAX);
+            } else {
+                inicioDia = fecha.atStartOfDay();
+                finDia = fecha.atTime(LocalTime.MAX);
+            }
+        } else {
+            inicioDia = ahora;
+            finDia = null;
+        }
 
         List<Turno> turnosDisponibles = turnoRepository.findDisponibles(
                 EstadoTurno.DISPONIBLE,
                 especialidadId,
                 profesionalId,
                 sedeId,
+                ahora,
                 inicioDia,
                 finDia
         );
 
         return turnosDisponibles.stream()
+                .map(TurnoResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TurnoResponseDTO> consultarAgenda(Long especialidadId, Long profesionalId, Long sedeId, LocalDate fecha, EstadoTurno estado) {
+        final Long[] profesionalIdHolder = new Long[]{profesionalId};
+        SecurityUtils.getCurrentUser().ifPresent(user -> {
+            if (user.esMedico()) {
+                if (user.getProfesionalId() == null) {
+                    throw new AccesoDenegadoException("El usuario médico no tiene un profesionalId asociado.");
+                }
+                profesionalIdHolder[0] = user.getProfesionalId();
+            }
+        });
+
+        LocalDateTime inicioDia = fecha != null ? fecha.atStartOfDay() : null;
+        LocalDateTime finDia = fecha != null ? fecha.atTime(LocalTime.MAX) : null;
+
+        List<Turno> turnosAgenda = turnoRepository.findAgenda(
+                estado,
+                especialidadId,
+                profesionalIdHolder[0],
+                sedeId,
+                inicioDia,
+                finDia
+        );
+
+        return turnosAgenda.stream()
                 .map(TurnoResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -267,6 +314,12 @@ public class TurnoServiceImpl implements TurnoService {
             throw new ConflictoException("El turno no se encuentra en estado DISPONIBLE (Estado actual: " + turno.getEstado() + ").");
         }
 
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime fechaInicioTurno = turno.getFechaHoraInicio() != null ? turno.getFechaHoraInicio() : turno.getFechaHora();
+        if (fechaInicioTurno != null && fechaInicioTurno.isBefore(ahora)) {
+            throw new ConflictoException("No es posible reservar un turno expirado. El horario de atención seleccionado ya ha transcurrido.");
+        }
+
         turno.setPaciente(paciente);
         turno.setEstado(EstadoTurno.RESERVADO);
         if (request.getMotivoConsulta() != null && !request.getMotivoConsulta().isBlank()) {
@@ -297,6 +350,12 @@ public class TurnoServiceImpl implements TurnoService {
 
         if (turno.getEstado() != EstadoTurno.DISPONIBLE) {
             throw new ConflictoException("El turno no se encuentra en estado DISPONIBLE (Estado actual: " + turno.getEstado() + ").");
+        }
+
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime fechaInicioTurno = turno.getFechaHoraInicio() != null ? turno.getFechaHoraInicio() : turno.getFechaHora();
+        if (fechaInicioTurno != null && fechaInicioTurno.isBefore(ahora)) {
+            throw new ConflictoException("No es posible reservar un turno expirado. El horario de atención seleccionado ya ha transcurrido.");
         }
 
         turno.setPaciente(paciente);

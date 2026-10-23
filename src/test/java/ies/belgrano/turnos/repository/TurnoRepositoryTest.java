@@ -44,7 +44,12 @@ class TurnoRepositoryTest {
     void debeGuardarYRecuperarTurno() {
         ObraSocial osep = obraSocialRepository.save(new ObraSocial("OSEP", "OSEP-MZA"));
         
-        Paciente paciente = new Paciente(null, "Juan", "Pérez", "12345678", "juan@email.com", "261111222", LocalDate.of(1990, 5, 15), osep);
+        Paciente paciente = new Paciente();
+        paciente.setNombre("Juan");
+        paciente.setApellido("Pérez");
+        paciente.setDni("12345678");
+        paciente.setEmail("juan@email.com");
+        paciente.setTelefono("261111222");
         paciente = pacienteRepository.save(paciente);
 
         Especialidad pediatria = especialidadRepository.save(new Especialidad("Pediatría", "Atención médica infantil"));

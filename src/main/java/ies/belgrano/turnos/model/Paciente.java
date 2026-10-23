@@ -13,20 +13,20 @@ public class Paciente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Vinculación con el Usuario (importante para el login y registro)
+    // Vinculación con el Usuario 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     private Usuario usuario;
 
     @NotBlank(message = "El nombre es obligatorio")
     @Column(nullable = false)
-    private String nombre; // Corregido el "nombre;1"
+    private String nombre; 
 
     @NotBlank(message = "El apellido es obligatorio")
     @Column(nullable = false)
     private String apellido;
 
-    // Cambiado CUIL por DNI, como lo pediste
+    
     @NotBlank(message = "El DNI es obligatorio")
     @Column(nullable = false, unique = true)
     private String dni;
@@ -63,11 +63,17 @@ public class Paciente {
     @JoinColumn(name = "tutor_id")
     private Paciente tutor;
 
+    @Column(name = "parentesco")
+    private String parentesco;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true; 
+
     public Paciente() {
     }
 
-    // Constructor actualizado con DNI en lugar de CUIL
-    public Paciente(Long id, String nombre, String apellido, String dni, String email, String telefono, LocalDate fechaNacimiento, ObraSocial obraSocial) {
+    
+    public Paciente(Long id, String nombre, String apellido, String dni, String email, String telefono, LocalDate fechaNacimiento, ObraSocial obraSocial, Boolean isActive, Paciente tutor, String parentesco) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -76,6 +82,9 @@ public class Paciente {
         this.telefono = telefono;
         this.fechaNacimiento = fechaNacimiento;
         this.obraSocial = obraSocial;
+        this.isActive = isActive;
+        this.tutor = tutor;
+        this.parentesco = parentesco;
     }
 
     // Getters y Setters
@@ -160,20 +169,47 @@ public class Paciente {
         this.tutor = tutor;
     }
 
-    public String getGenero() { return genero; }
-    public void setGenero(String genero) { this.genero = genero; }
+    public String getGenero() {
+         return genero; }
+    
+    public void setGenero(String genero) {
+         this.genero = genero; }
 
-    public Boolean getTieneObraSocial() { return tieneObraSocial; }
-    public void setTieneObraSocial(Boolean tieneObraSocial) { this.tieneObraSocial = tieneObraSocial; }
+    public Boolean getTieneObraSocial() {
+         return tieneObraSocial; }
 
-    public String getProveedorObraSocial() { return proveedorObraSocial; }
-    public void setProveedorObraSocial(String proveedorObraSocial) { this.proveedorObraSocial = proveedorObraSocial; }
+    public void setTieneObraSocial(Boolean tieneObraSocial) {
+         this.tieneObraSocial = tieneObraSocial; }
 
-    public String getNumeroAfiliado() { return numeroAfiliado; }
-    public void setNumeroAfiliado(String numeroAfiliado) { this.numeroAfiliado = numeroAfiliado; }
+    public String getProveedorObraSocial() {
+         return proveedorObraSocial; }
 
-    public String getPlanObraSocial() { return planObraSocial; }
-    public void setPlanObraSocial(String planObraSocial) { this.planObraSocial = planObraSocial; }
+    public void setProveedorObraSocial(String proveedorObraSocial) {
+         this.proveedorObraSocial = proveedorObraSocial; }
+
+    public String getNumeroAfiliado() {
+         return numeroAfiliado; }
+
+    public void setNumeroAfiliado(String numeroAfiliado) {
+         this.numeroAfiliado = numeroAfiliado; }
+
+    public String getPlanObraSocial() {
+         return planObraSocial; }
+
+    public void setPlanObraSocial(String planObraSocial) {
+         this.planObraSocial = planObraSocial; }
+     
+    public String getParentesco() {
+        return parentesco;  }
+
+    public void setParentesco(String parentesco) {
+        this.parentesco = parentesco;   }
+
+    public Boolean getIsActive() {
+        return isActive;    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;   }     
 
     @Override
     public boolean equals(Object o) {

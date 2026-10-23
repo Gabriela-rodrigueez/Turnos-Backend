@@ -42,8 +42,15 @@ class PacienteServiceTest {
         String dni = "35111222";
         ObraSocial osep = new ObraSocial("OSEP Mendoza", "OSEP-001");
         osep.setId(1L);
-        Paciente paciente = new Paciente(1L, "Juan", "González", dni, "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), osep);
-
+        Paciente paciente = new Paciente();
+        paciente.setId(1L);
+        paciente.setNombre("Juan");
+        paciente.setApellido("González");
+        paciente.setDni(dni);
+        paciente.setEmail("juan@gmail.com");
+        paciente.setTelefono("2614001111");
+        paciente.setFechaNacimiento(LocalDate.of(1990, 5, 15));
+        paciente.setObraSocial(osep);
         when(pacienteRepository.findByDni(dni)).thenReturn(Optional.of(paciente));
 
         PacienteResponseDTO resultado = pacienteService.buscarPorDni(dni);
@@ -80,9 +87,18 @@ class PacienteServiceTest {
     @Test
     @DisplayName("listarPacientes: Retorna todos los pacientes cuando el filtro es nulo o vacío")
     void testListarPacientes_SinFiltro() {
-        Paciente p1 = new Paciente(1L, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null);
-        Paciente p2 = new Paciente(2L, "Lucía", "Martínez", "40222333", "lucia@gmail.com", "2614002222", LocalDate.of(1997, 11, 20), null);
+        Paciente p1 = new Paciente();
+        p1.setId(1L);
+        p1.setNombre("Juan");
+        p1.setApellido("González");
+        p1.setDni("35111222");
 
+        Paciente p2 = new Paciente();
+        p2.setId(2L);
+        p2.setNombre("Lucía");
+        p2.setApellido("Martínez");
+        p2.setDni("40222333");
+        
         when(pacienteRepository.findAll()).thenReturn(List.of(p1, p2));
 
         List<PacienteResponseDTO> resultado = pacienteService.listarPacientes(null);
@@ -97,9 +113,17 @@ class PacienteServiceTest {
     @DisplayName("listarPacientes: Retorna pacientes filtrados cuando se proporciona un criterio de búsqueda")
     void testListarPacientes_ConFiltro() {
         String filtro = "González";
-        Paciente p1 = new Paciente(1L, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null);
-        Paciente p2 = new Paciente(2L, "Lucía", "Martínez", "40222333", "lucia@gmail.com", "2614002222", LocalDate.of(1997, 11, 20), null);
+        Paciente p1 = new Paciente();
+        p1.setId(1L);
+        p1.setNombre("Juan");
+        p1.setApellido("González");
+        p1.setDni("35111222");
 
+        Paciente p2 = new Paciente();
+        p2.setId(2L);
+        p2.setNombre("Lucía");
+        p2.setApellido("Martínez");
+        p2.setDni("40222333");
         when(pacienteRepository.findAll()).thenReturn(List.of(p1, p2));
 
         List<PacienteResponseDTO> resultado = pacienteService.listarPacientes(filtro);
@@ -112,7 +136,11 @@ class PacienteServiceTest {
     @Test
     @DisplayName("listarPacientes: Búsqueda insensible a tildes y mayúsculas")
     void testListarPacientes_InsensibleTildes() {
-        Paciente p1 = new Paciente(1L, "Lucía", "Martínez", "40222333", "lucia@gmail.com", "2614002222", LocalDate.of(1997, 11, 20), null);
+        Paciente p1 = new Paciente();
+        p1.setId(1L);
+        p1.setNombre("Lucía");
+        p1.setApellido("Martínez");
+        p1.setDni("40222333");
         when(pacienteRepository.findAll()).thenReturn(List.of(p1));
 
         List<PacienteResponseDTO> resultado = pacienteService.listarPacientes("lucia");

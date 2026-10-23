@@ -70,7 +70,12 @@ class TurnoServicePresencialTest {
                 "Consulta médica general", "Turno administrativo presencial"
         );
 
-        Paciente paciente = new Paciente(pacienteId, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null);
+        Paciente paciente = new Paciente();
+        paciente.setId(pacienteId);
+        paciente.setNombre("Juan");
+        paciente.setApellido("González");
+        paciente.setDni("35111222");
+        paciente.setEmail("juan@gmail.com");
         Profesional profesional = new Profesional(profesionalId, "Roberto", "Pérez", "20999888", "M-12345", "roberto@hospital.com", "261555666");
         Especialidad especialidad = new Especialidad("Cardiología", "Corazón");
         especialidad.setId(especialidadId);

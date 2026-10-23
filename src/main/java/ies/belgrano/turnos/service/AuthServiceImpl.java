@@ -61,22 +61,20 @@ public class AuthServiceImpl implements AuthService {
             throw new ConflictoException("El DNI " + dto.getDni() + " ya se encuentra registrado en el sistema.");
         }
 
-        Long osId = (dto.getObraSocialId() != null) ? dto.getObraSocialId() : 4L; // Default: Particular
+        Long osId = (dto.getObraSocialId() != null) ? dto.getObraSocialId() : 4L; 
         ObraSocial obraSocial = obraSocialRepository.findById(osId)
-                // Eliminada la palabra fantasma "mensaje:"
+                
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró la Obra Social especificada."));
 
-        // Eliminado el "id: null, ..." que marcaba error
-        Paciente paciente = new Paciente(
-                null,
-                dto.getNombre(),
-                dto.getApellido(),
-                dto.getDni(),
-                dto.getEmail(),
-                dto.getTelefono(),
-                dto.getFechaNacimiento(),
-                obraSocial
-        );
+        
+        Paciente paciente = new Paciente();
+        paciente.setNombre(dto.getNombre());
+        paciente.setApellido(dto.getApellido());
+        paciente.setDni(dto.getDni());
+        paciente.setEmail(dto.getEmail());
+        paciente.setTelefono(dto.getTelefono());
+        paciente.setFechaNacimiento(dto.getFechaNacimiento());
+
         paciente.setObraSocial(obraSocial);
         paciente.setGenero(dto.getGender());
         paciente.setTieneObraSocial("si".equalsIgnoreCase(dto.getHasInsurance()) || "true".equalsIgnoreCase(dto.getHasInsurance()));

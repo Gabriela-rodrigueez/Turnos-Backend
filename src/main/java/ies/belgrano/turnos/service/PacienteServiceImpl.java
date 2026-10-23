@@ -96,4 +96,68 @@ public class PacienteServiceImpl implements PacienteService {
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
                 .toLowerCase();
     }
+
+        //Grupo Familiar
+    @Override
+    @Transactional
+    public PacienteResponseDTO registrarFamiliar(Long tutorId, Paciente familiarDto) {
+        // 1. Verificar que el tutor exista
+        Paciente tutor = pacienteRepository.findById(tutorId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el tutor con ID: " + tutorId));
+
+        // 2. Configurar el familiar
+        familiarDto.setTutor(tutor);
+        familiarDto.setIsActive(true); 
+
+        Paciente familiarGuardado = pacienteRepository.save(familiarDto);
+        return PacienteResponseDTO.fromEntity(familiarGuardado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PacienteResponseDTO> listarFamiliaresActivos(Long tutorId) {
+        // Verificar que el tutor exista
+        if (!pacienteRepository.existsById(tutorId)) {
+            throw new RecursoNoEncontradoException("No se encontró el tutor con ID: " + tutorId);
+        }
+
+        List<Paciente> familiares = pacienteRepository.findByTutorIdAndIsActiveTrue(tutorId);
+        return familiares.stream()
+                .map(PacienteResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void bajaLogicaFamiliar(Long tutorId, Long familiarId) {
+        Paciente familiar = pacienteRepository.findById(familiarId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el familiar con ID: " + familiarId));
+
+        // Validar que pertenezca al tutor indicado
+        if (familiar.getTutor() == null || !familiar.getTutor().getId().equals(tutorId)) {
+            throw new IllegalArgumentException("El paciente no pertenece al tutor especificado.");
+        }
+
+        // Aplicar baja lógica (regla de negocio: isAcive = false)
+        familiar.setIsActive(false);
+        
+        pacienteRepository.save(familiar);
+    }
+
+    @Override
+    @Transactional
+    public void reactivarFamiliar(Long tutorId, Long familiarId) {
+        Paciente familiar = pacienteRepository.findById(familiarId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el familiar con ID: " + familiarId));
+
+        // Validar pertenencia al tutor
+        if (familiar.getTutor() == null || !familiar.getTutor().getId().equals(tutorId)) {
+            throw new IllegalArgumentException("El paciente no pertenece al tutor especificado.");
+        }
+
+        // Reactivar
+        familiar.setIsActive(true);
+        pacienteRepository.save(familiar);
+    }
+
 }

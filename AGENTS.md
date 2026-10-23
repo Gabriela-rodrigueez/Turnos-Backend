@@ -23,7 +23,7 @@ Este archivo define las reglas obligatorias de comportamiento, seguridad, arquit
 - **Pacientes**: Toda acción realizada por un usuario con rol `PACIENTE` debe estar estrictamente limitada por su propio `pacienteId`. No puede consultar, solicitar, editar ni cancelar turnos pertenecientes a otro paciente.
 - **Médicos**: Aplica la misma regla para el rol `MEDICO`; solo puede operar sobre los turnos asociados a su propio `profesionalId`.
 - **Administradores**: Tienen privilegios globales para operar con cualquier `pacienteId` o `profesionalId`.
-
+- **Grupo Familiar**: Un usuario con rol PACIENTE puede registrar y gestionar dependientes. El sistema debe validar estrictamente (Ownership Check) que el ID del paciente autenticado coincida con el tutorId de la solicitud en todos los endpoints de familiares (registrar, listar, baja lógica, reactivar). Un paciente no puede operar sobre el grupo familiar de otros usuarios.
 ---
 
 ## 🛠️ 3. Reglas Técnicas y de Calidad

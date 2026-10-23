@@ -85,7 +85,12 @@ class TurnoControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        paciente = pacienteRepository.save(new Paciente(null, "Carlos", "Gómez", "30111222", "carlos@gmail.com", "261444333", LocalDate.of(1985, 3, 20), null));
+        paciente = new Paciente();
+        paciente.setNombre("Carlos");
+        paciente.setApellido("Gómez");
+        paciente.setDni("30111222");
+        paciente.setEmail("carlos@gmail.com");
+        paciente = pacienteRepository.save(paciente);
         especialidad = especialidadRepository.save(new Especialidad("Cardiología", "Estudio del corazón"));
         profesional = profesionalRepository.save(new Profesional(null, "Roberto", "Pérez", "20999888", "M-12345", "roberto@hospital.com", "261555666"));
         profesional.getEspecialidades().add(especialidad);

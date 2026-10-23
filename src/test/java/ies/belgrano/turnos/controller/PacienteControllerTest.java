@@ -84,9 +84,19 @@ class PacienteControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        pacienteConTurnos = pacienteRepository.save(new Paciente(null, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null));
-        pacienteSinTurnos = pacienteRepository.save(new Paciente(null, "Lucía", "Martínez", "40222333", "lucia@hotmail.com", "2614002222", LocalDate.of(1997, 11, 20), null));
+        pacienteConTurnos = new Paciente();
+        pacienteConTurnos.setNombre("Juan");
+        pacienteConTurnos.setApellido("González");
+        pacienteConTurnos.setDni("35111222");
+        pacienteConTurnos.setEmail("juan@gmail.com");
+        pacienteConTurnos = pacienteRepository.save(pacienteConTurnos);
 
+        pacienteSinTurnos = new Paciente();
+        pacienteSinTurnos.setNombre("Lucía");
+        pacienteSinTurnos.setApellido("Martínez");
+        pacienteSinTurnos.setDni("40222333");
+        pacienteSinTurnos.setEmail("lucia@gmail.com");
+        pacienteSinTurnos = pacienteRepository.save(pacienteSinTurnos);
         Especialidad especialidad = especialidadRepository.save(new Especialidad("Cardiología", "Estudio del corazón"));
         Profesional profesional = profesionalRepository.save(new Profesional(null, "Roberto", "Pérez", "20999888", "M-12345", "roberto@hospital.com", "261555666"));
         Sede sede = sedeRepository.save(new Sede("Hospital Central", "Alem 450", "2614490000", "Mendoza"));

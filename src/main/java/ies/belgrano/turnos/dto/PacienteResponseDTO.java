@@ -41,12 +41,18 @@ public class PacienteResponseDTO {
     @Schema(description = "Nombre completo del tutor legal", example = "null")
     private String tutorNombreCompleto;
 
+    @Schema(description = "Estado de actividad del paciente/familiar", example = "true")
+    private Boolean isActive;
+
+    @Schema(description = "Parentesco con el tutor legal", example = "HIJO")
+    private String parentesco;
+
     public PacienteResponseDTO() {
     }
 
     public PacienteResponseDTO(Long id, String nombre, String apellido, String dni, String email, String telefono,
                                LocalDate fechaNacimiento, Long obraSocialId, String obraSocialNombre,
-                               Long tutorId, String tutorNombreCompleto) {
+                               Long tutorId, String tutorNombreCompleto, Boolean isActive, String parentesco) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -58,6 +64,8 @@ public class PacienteResponseDTO {
         this.obraSocialNombre = obraSocialNombre;
         this.tutorId = tutorId;
         this.tutorNombreCompleto = tutorNombreCompleto;
+        this.isActive = isActive;
+        this.parentesco = parentesco;
     }
 
     public static PacienteResponseDTO fromEntity(Paciente paciente) {
@@ -73,6 +81,8 @@ public class PacienteResponseDTO {
         dto.setEmail(paciente.getEmail());
         dto.setTelefono(paciente.getTelefono());
         dto.setFechaNacimiento(paciente.getFechaNacimiento());
+        dto.setIsActive(paciente.getIsActive());
+        dto.setParentesco(paciente.getParentesco());
 
         if (paciente.getObraSocial() != null) {
             dto.setObraSocialId(paciente.getObraSocial().getId());
@@ -87,91 +97,42 @@ public class PacienteResponseDTO {
         return dto;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public Long getObraSocialId() {
-        return obraSocialId;
-    }
-
-    public void setObraSocialId(Long obraSocialId) {
-        this.obraSocialId = obraSocialId;
-    }
-
-    public String getObraSocialNombre() {
-        return obraSocialNombre;
-    }
-
-    public void setObraSocialNombre(String obraSocialNombre) {
-        this.obraSocialNombre = obraSocialNombre;
-    }
-
-    public Long getTutorId() {
-        return tutorId;
-    }
-
-    public void setTutorId(Long tutorId) {
-        this.tutorId = tutorId;
-    }
-
-    public String getTutorNombreCompleto() {
-        return tutorNombreCompleto;
-    }
-
-    public void setTutorNombreCompleto(String tutorNombreCompleto) {
-        this.tutorNombreCompleto = tutorNombreCompleto;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
+    
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
+    
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+    
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+    
+    public Long getObraSocialId() { return obraSocialId; }
+    public void setObraSocialId(Long obraSocialId) { this.obraSocialId = obraSocialId; }
+    
+    public String getObraSocialNombre() { return obraSocialNombre; }
+    public void setObraSocialNombre(String obraSocialNombre) { this.obraSocialNombre = obraSocialNombre; }
+    
+    public Long getTutorId() { return tutorId; }
+    public void setTutorId(Long tutorId) { this.tutorId = tutorId; }
+    
+    public String getTutorNombreCompleto() { return tutorNombreCompleto; }
+    public void setTutorNombreCompleto(String tutorNombreCompleto) { this.tutorNombreCompleto = tutorNombreCompleto; }
+    
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+    
+    public String getParentesco() { return parentesco; }
+    public void setParentesco(String parentesco) { this.parentesco = parentesco; }
 }

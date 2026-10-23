@@ -82,10 +82,14 @@ class AdminTurnoControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        paciente = pacienteRepository.save(new Paciente(
-                null, "Mateo", "González", "55333444", "mateo@gmail.com",
-                "2614001111", LocalDate.of(2018, 8, 10), null
-        ));
+        paciente = new Paciente();
+        paciente.setNombre("Mateo");
+        paciente.setApellido("González");
+        paciente.setDni("55333444");
+        paciente.setEmail("mateo@gmail.com");
+        paciente.setTelefono("2614001111");
+        paciente.setFechaNacimiento(LocalDate.of(2018, 8, 10));
+        paciente = pacienteRepository.save(paciente);
 
         especialidad = especialidadRepository.save(new Especialidad("Pediatría", "Atención médica integral pediátrica"));
         profesional = profesionalRepository.save(new Profesional(

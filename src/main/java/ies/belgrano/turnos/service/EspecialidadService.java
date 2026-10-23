@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface EspecialidadService {
     List<EspecialidadDTO> listarEspecialidades();
+    List<EspecialidadDTO> listarEspecialidades(Long profesionalId);
 }

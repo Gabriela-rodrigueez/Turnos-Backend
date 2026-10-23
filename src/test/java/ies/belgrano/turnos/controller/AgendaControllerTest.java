@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,12 +34,14 @@ import ies.belgrano.turnos.TurnosApplication;
 import ies.belgrano.turnos.dto.GenerarSlotsRequestDTO;
 import ies.belgrano.turnos.model.Especialidad;
 import ies.belgrano.turnos.model.EstadoTurno;
+import ies.belgrano.turnos.model.Paciente;
 import ies.belgrano.turnos.model.Profesional;
 import ies.belgrano.turnos.model.Rol;
 import ies.belgrano.turnos.model.Sede;
 import ies.belgrano.turnos.model.Turno;
 import ies.belgrano.turnos.model.Usuario;
 import ies.belgrano.turnos.repository.EspecialidadRepository;
+import ies.belgrano.turnos.repository.PacienteRepository;
 import ies.belgrano.turnos.repository.ProfesionalRepository;
 import ies.belgrano.turnos.repository.SedeRepository;
 import ies.belgrano.turnos.repository.TurnoRepository;
@@ -73,11 +76,15 @@ class AgendaControllerTest {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PacienteRepository pacienteRepository;
+
     private MockMvc mockMvc;
     private Profesional profesional1;
     private Profesional profesional2;
     private Especialidad especialidad;
     private Sede sede;
+    private Paciente paciente;
 
     private String tokenAdmin;
     private String tokenMedico1;
@@ -121,7 +128,11 @@ class AgendaControllerTest {
         tokenMedico2 = jwtService.generarToken(medico2User);
 
         // Usuario PACIENTE
+        paciente = pacienteRepository.save(new Paciente(
+                null, "Martín", "Palermo", "30111222", "martin@test.com", "2614998877", LocalDate.of(1985, 5, 20), null
+        ));
         Usuario pacienteUser = new Usuario("paciente.test@gmail.com", "pass", Rol.PACIENTE);
+        pacienteUser.setPaciente(paciente);
         usuarioRepository.save(pacienteUser);
         tokenPaciente = jwtService.generarToken(pacienteUser);
     }
@@ -323,6 +334,43 @@ class AgendaControllerTest {
                         .header("Authorization", "Bearer " + tokenAdmin))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/agenda - Médico consulta su agenda y visualiza slots DISPONIBLE y RESERVADO con datos del paciente")
+    void testConsultarAgenda_MedicoExitoso() throws Exception {
+        LocalDateTime inicio1 = LocalDateTime.now().plusDays(1).withHour(9).withMinute(0);
+        LocalDateTime inicio2 = LocalDateTime.now().plusDays(1).withHour(9).withMinute(30);
+
+        // Slot 1: DISPONIBLE
+        turnoRepository.save(new Turno(
+                null, inicio1, inicio1.plusMinutes(30), EstadoTurno.DISPONIBLE, null, profesional1, especialidad, sede, null
+        ));
+
+        // Slot 2: RESERVADO con paciente
+        Turno reservado = new Turno(
+                null, inicio2, inicio2.plusMinutes(30), EstadoTurno.RESERVADO, paciente, profesional1, especialidad, sede, "Control pediátrico"
+        );
+        turnoRepository.save(reservado);
+
+        mockMvc.perform(get("/api/v1/agenda")
+                        .header("Authorization", "Bearer " + tokenMedico1)
+                        .param("especialidadId", String.valueOf(especialidad.getId())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].estado", is("DISPONIBLE")))
+                .andExpect(jsonPath("$[1].estado", is("RESERVADO")))
+                .andExpect(jsonPath("$[1].pacienteNombreCompleto", is(paciente.getNombre() + " " + paciente.getApellido())))
+                .andExpect(jsonPath("$[1].motivoConsulta", is("Control pediátrico")));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/agenda - Paciente intenta consultar agenda médica retorna 403 Forbidden")
+    void testConsultarAgenda_Paciente_Retorna403() throws Exception {
+        mockMvc.perform(get("/api/v1/agenda")
+                        .header("Authorization", "Bearer " + tokenPaciente))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is(403)));
     }
 }
 

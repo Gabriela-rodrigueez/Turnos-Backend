@@ -38,16 +38,16 @@ INSERT INTO pacientes (id, nombre, apellido, dni, email, telefono, fecha_nacimie
 
 -- 7. TURNOS INICIALES DE PRUEBA
 INSERT INTO turnos (id, fecha_hora, fecha_hora_inicio, fecha_hora_fin, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
-VALUES (1, '2026-10-05 09:00:00', '2026-10-05 09:00:00', '2026-10-05 09:30:00', 'DISPONIBLE', NULL, 1, 1, 1, NULL, 'Turno libre para agendar', CURRENT_TIMESTAMP);
+VALUES (1, '2026-11-05 09:00:00', '2026-11-05 09:00:00', '2026-11-05 09:30:00', 'DISPONIBLE', NULL, 1, 1, 1, NULL, 'Turno libre para agendar', CURRENT_TIMESTAMP);
 
 INSERT INTO turnos (id, fecha_hora, fecha_hora_inicio, fecha_hora_fin, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
-VALUES (2, '2026-10-05 10:30:00', '2026-10-05 10:30:00', '2026-10-05 11:00:00', 'DISPONIBLE', NULL, 1, 1, 1, NULL, 'Turno libre para agendar', CURRENT_TIMESTAMP);
+VALUES (2, '2026-11-05 10:30:00', '2026-11-05 10:30:00', '2026-11-05 11:00:00', 'DISPONIBLE', NULL, 1, 1, 1, NULL, 'Turno libre para agendar', CURRENT_TIMESTAMP);
 
 INSERT INTO turnos (id, fecha_hora, fecha_hora_inicio, fecha_hora_fin, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
-VALUES (3, '2026-10-05 11:30:00', '2026-10-05 11:30:00', '2026-10-05 12:00:00', 'RESERVADO', 1, 1, 1, 1, 'Control hipertensión arterial', 'Paciente registrado con OSEP', CURRENT_TIMESTAMP);
+VALUES (3, '2026-11-05 11:30:00', '2026-11-05 11:30:00', '2026-11-05 12:00:00', 'RESERVADO', 1, 1, 1, 1, 'Control hipertensión arterial', 'Paciente registrado con OSEP', CURRENT_TIMESTAMP);
 
 INSERT INTO turnos (id, fecha_hora, fecha_hora_inicio, fecha_hora_fin, estado, paciente_id, profesional_id, especialidad_id, sede_id, motivo_consulta, observaciones, fecha_creacion)
-VALUES (4, '2026-10-06 10:00:00', '2026-10-06 10:00:00', '2026-10-06 10:30:00', 'DISPONIBLE', NULL, 2, 2, 2, NULL, 'Turno libre pediatría', CURRENT_TIMESTAMP);
+VALUES (4, '2026-11-06 10:00:00', '2026-11-06 10:00:00', '2026-11-06 10:30:00', 'DISPONIBLE', NULL, 2, 2, 2, NULL, 'Turno libre pediatría', CURRENT_TIMESTAMP);
 
 -- 8. USUARIOS INICIALES (Contraseña por defecto: Password123)
 -- Hash BCrypt para 'Password123': $2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m

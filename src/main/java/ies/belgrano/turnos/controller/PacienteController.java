@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ies.belgrano.turnos.dto.ErrorResponseDTO;
+import ies.belgrano.turnos.dto.PacienteResponseDTO;
 import ies.belgrano.turnos.dto.TurnoResponseDTO;
+import ies.belgrano.turnos.security.annotation.EsMedicoOAdministrador;
 import ies.belgrano.turnos.security.annotation.EsPacienteOAdministrador;
 import ies.belgrano.turnos.service.PacienteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,16 +22,44 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/v1/pacientes")
-@Tag(name = "Pacientes", description = "API REST para gestión de pacientes y consulta de sus turnos")
+@Tag(name = "Pacientes", description = "API REST para gestión de pacientes, búsqueda clínica y consulta de sus turnos")
 public class PacienteController {
 
     private final PacienteService pacienteService;
 
     public PacienteController(PacienteService pacienteService) {
         this.pacienteService = pacienteService;
+    }
+
+    @GetMapping
+    @EsMedicoOAdministrador
+    @Operation(
+            summary = "Listar pacientes registrados",
+            description = "Lista todos los pacientes registrados en el sistema hospitalario con soporte para búsqueda por DNI, apellido o nombre. Permitido para MÉDICOS y ADMINISTRADORES."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado de pacientes obtenido exitosamente",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PacienteResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "No autenticado: Se requiere token JWT válido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: Se requiere rol MÉDICO o ADMINISTRADOR",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    public ResponseEntity<List<PacienteResponseDTO>> listarPacientes(
+            @Parameter(description = "Criterio de búsqueda por DNI, apellido o nombre (opcional)", example = "González")
+            @RequestParam(value = "filtro", required = false) String filtro,
+            @Parameter(description = "Alias alternativo para búsqueda (opcional)", example = "35111222")
+            @RequestParam(value = "buscar", required = false) String buscar
+    ) {
+        String criterio = (filtro != null && !filtro.isBlank()) ? filtro : buscar;
+        List<PacienteResponseDTO> pacientes = pacienteService.listarPacientes(criterio);
+        return ResponseEntity.ok(pacientes);
     }
 
     @GetMapping("/{pacienteId}/turnos")

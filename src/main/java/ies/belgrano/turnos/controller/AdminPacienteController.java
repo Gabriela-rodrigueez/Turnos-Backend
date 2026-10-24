@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ies.belgrano.turnos.dto.ErrorResponseDTO;
 import ies.belgrano.turnos.dto.PacienteResponseDTO;
-import ies.belgrano.turnos.security.annotation.EsAdministrador;
+import ies.belgrano.turnos.security.annotation.EsMedicoOAdministrador;
 import ies.belgrano.turnos.service.PacienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/admin/pacientes")
-@EsAdministrador
+@EsMedicoOAdministrador
 @Tag(name = "Administración - Pacientes", description = "Endpoints de gestión administrativa hospitalaria para consulta y búsqueda de pacientes")
 @SecurityRequirement(name = "bearerAuth")
 public class AdminPacienteController {
@@ -36,10 +36,10 @@ public class AdminPacienteController {
     }
 
     @GetMapping("/buscar")
-    @EsAdministrador
+    @EsMedicoOAdministrador
     @Operation(
             summary = "Buscar paciente por DNI",
-            description = "Permite al personal administrativo buscar un paciente por su número de DNI. Retorna 200 OK con el DTO del paciente o 404 Not Found si no está registrado."
+            description = "Permite al personal médico o administrativo buscar un paciente por su número de DNI. Retorna 200 OK con el DTO del paciente o 404 Not Found si no está registrado."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Paciente encontrado exitosamente",
@@ -48,7 +48,7 @@ public class AdminPacienteController {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "401", description = "No autenticado: Se requiere token JWT válido",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: Se requiere rol ADMINISTRADOR",
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: Se requiere rol MÉDICO o ADMINISTRADOR",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Paciente no encontrado con el DNI especificado",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
@@ -64,7 +64,7 @@ public class AdminPacienteController {
     }
 
     @GetMapping
-    @EsAdministrador
+    @EsMedicoOAdministrador
     @Operation(
             summary = "Listar pacientes registrados",
             description = "Lista todos los pacientes registrados en el sistema hospitalario con soporte para filtrado por apellido o nombre."

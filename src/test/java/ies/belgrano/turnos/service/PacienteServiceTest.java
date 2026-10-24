@@ -3,6 +3,7 @@ package ies.belgrano.turnos.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import ies.belgrano.turnos.dto.PacienteResponseDTO;
 import ies.belgrano.turnos.exception.RecursoNoEncontradoException;
@@ -83,14 +85,14 @@ class PacienteServiceTest {
         Paciente p1 = new Paciente(1L, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null);
         Paciente p2 = new Paciente(2L, "Lucía", "Martínez", "40222333", "lucia@gmail.com", "2614002222", LocalDate.of(1997, 11, 20), null);
 
-        when(pacienteRepository.findAll()).thenReturn(List.of(p1, p2));
+        when(pacienteRepository.findAll(any(Specification.class))).thenReturn(List.of(p1, p2));
 
         List<PacienteResponseDTO> resultado = pacienteService.listarPacientes(null);
 
         assertEquals(2, resultado.size());
         assertEquals("Juan", resultado.get(0).getNombre());
         assertEquals("Lucía", resultado.get(1).getNombre());
-        verify(pacienteRepository).findAll();
+        verify(pacienteRepository).findAll(any(Specification.class));
     }
 
     @Test
@@ -98,26 +100,26 @@ class PacienteServiceTest {
     void testListarPacientes_ConFiltro() {
         String filtro = "González";
         Paciente p1 = new Paciente(1L, "Juan", "González", "35111222", "juan@gmail.com", "2614001111", LocalDate.of(1990, 5, 15), null);
-        Paciente p2 = new Paciente(2L, "Lucía", "Martínez", "40222333", "lucia@gmail.com", "2614002222", LocalDate.of(1997, 11, 20), null);
 
-        when(pacienteRepository.findAll()).thenReturn(List.of(p1, p2));
+        when(pacienteRepository.findAll(any(Specification.class))).thenReturn(List.of(p1));
 
         List<PacienteResponseDTO> resultado = pacienteService.listarPacientes(filtro);
 
         assertEquals(1, resultado.size());
         assertEquals("González", resultado.get(0).getApellido());
-        verify(pacienteRepository).findAll();
+        verify(pacienteRepository).findAll(any(Specification.class));
     }
 
     @Test
-    @DisplayName("listarPacientes: Búsqueda insensible a tildes y mayúsculas")
-    void testListarPacientes_InsensibleTildes() {
+    @DisplayName("listarPacientes: Búsqueda con especificación criteria")
+    void testListarPacientes_ConCriterioDniONombre() {
         Paciente p1 = new Paciente(1L, "Lucía", "Martínez", "40222333", "lucia@gmail.com", "2614002222", LocalDate.of(1997, 11, 20), null);
-        when(pacienteRepository.findAll()).thenReturn(List.of(p1));
+        when(pacienteRepository.findAll(any(Specification.class))).thenReturn(List.of(p1));
 
-        List<PacienteResponseDTO> resultado = pacienteService.listarPacientes("lucia");
+        List<PacienteResponseDTO> resultado = pacienteService.listarPacientes("40222333");
 
         assertEquals(1, resultado.size());
         assertEquals("Lucía", resultado.get(0).getNombre());
+        verify(pacienteRepository).findAll(any(Specification.class));
     }
 }

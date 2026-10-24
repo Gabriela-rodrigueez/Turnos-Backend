@@ -1,6 +1,6 @@
 -- ============================================================
 -- SCRIPT DE POBLACIÓN DE DATOS DE PRUEBA (MENDOZA TURNOS MVP)
--- Incluye reinicio de secuencias H2 para compatibilidad total con JPA
+-- Ubicado exclusivamente en src/test/resources/data.sql para H2
 -- ============================================================
 
 -- 1. OBRAS SOCIALES
@@ -69,4 +69,3 @@ ALTER TABLE profesionales ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE pacientes ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE turnos ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 10;
-

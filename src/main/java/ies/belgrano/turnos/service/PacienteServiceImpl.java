@@ -7,8 +7,10 @@ import ies.belgrano.turnos.model.Paciente;
 import ies.belgrano.turnos.model.Turno;
 import ies.belgrano.turnos.repository.PacienteRepository;
 import ies.belgrano.turnos.repository.TurnoRepository;
+import ies.belgrano.turnos.repository.specification.PacienteSpecification;
 import ies.belgrano.turnos.security.AuthenticatedUser;
 import ies.belgrano.turnos.security.SecurityUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,35 +66,12 @@ public class PacienteServiceImpl implements PacienteService {
     @Override
     @Transactional(readOnly = true)
     public List<PacienteResponseDTO> listarPacientes(String filtro) {
-        List<Paciente> pacientes = pacienteRepository.findAll();
-
-        if (filtro != null && !filtro.trim().isEmpty()) {
-            String filtroNormalizado = normalizarTexto(filtro.trim());
-            pacientes = pacientes.stream()
-                    .filter(p -> {
-                        String nombreNorm = normalizarTexto(p.getNombre());
-                        String apellidoNorm = normalizarTexto(p.getApellido());
-                        String nombreCompleto1 = nombreNorm + " " + apellidoNorm;
-                        String nombreCompleto2 = apellidoNorm + " " + nombreNorm;
-                        return nombreNorm.contains(filtroNormalizado)
-                                || apellidoNorm.contains(filtroNormalizado)
-                                || nombreCompleto1.contains(filtroNormalizado)
-                                || nombreCompleto2.contains(filtroNormalizado);
-                    })
-                    .collect(Collectors.toList());
-        }
+        Specification<Paciente> spec = PacienteSpecification.conFiltro(filtro);
+        List<Paciente> pacientes = pacienteRepository.findAll(spec);
 
         return pacientes.stream()
                 .map(PacienteResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    private String normalizarTexto(String texto) {
-        if (texto == null) {
-            return "";
-        }
-        return Normalizer.normalize(texto, Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-                .toLowerCase();
-    }
 }

@@ -22,4 +22,11 @@ public class SedeServiceImpl implements SedeService {
                 .map(sede -> new SedeDTO(sede.getId(), sede.getNombre(), sede.getDireccion()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<SedeDTO> listarSedesPorProfesional(Long profesionalId) {
+        return sedeRepository.findDistinctByTurnosProfesionalId(profesionalId).stream()
+                .map(sede -> new SedeDTO(sede.getId(), sede.getNombre(), sede.getDireccion()))
+                .collect(Collectors.toList());
+    }
 }

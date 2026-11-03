@@ -60,12 +60,21 @@ VALUES (2, 'juan.gonzalez@gmail.com', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8
 INSERT INTO usuarios (id, email, password_hash, rol, legajo, activo, fecha_creacion, paciente_id, profesional_id)
 VALUES (3, 'roberto.perez@hospital.com', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m', 'MEDICO', NULL, true, CURRENT_TIMESTAMP, NULL, 1);
 
+INSERT INTO usuarios (id, email, password_hash, rol, legajo, activo, fecha_creacion, paciente_id, profesional_id)
+VALUES (4, 'lucia.martinez@hotmail.com', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m', 'PACIENTE', NULL, true, CURRENT_TIMESTAMP, 2, NULL);
+
+INSERT INTO usuarios (id, email, password_hash, rol, legajo, activo, fecha_creacion, paciente_id, profesional_id)
+VALUES (5, 'mateo.gonzalez@gmail.com', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m', 'PACIENTE', NULL, true, CURRENT_TIMESTAMP, 3, NULL);
+
+INSERT INTO usuarios (id, email, password_hash, rol, legajo, activo, fecha_creacion, paciente_id, profesional_id)
+VALUES (6, 'maria.gomez@notti.gob.ar', '$2a$10$C7GfDwSFliFPAyJLrZV1TOfJDHhugxmpU8dImQrGxaLuoSV6THL/m', 'MEDICO', NULL, true, CURRENT_TIMESTAMP, NULL, 2);
+
 
 -- REINICIO DE SECUENCIAS H2 PARA PREVENIR COLISIONES DE ID
-ALTER TABLE obras_sociales ALTER COLUMN id RESTART WITH 10;
-ALTER TABLE especialidades ALTER COLUMN id RESTART WITH 10;
-ALTER TABLE sedes ALTER COLUMN id RESTART WITH 10;
-ALTER TABLE profesionales ALTER COLUMN id RESTART WITH 10;
-ALTER TABLE pacientes ALTER COLUMN id RESTART WITH 10;
-ALTER TABLE turnos ALTER COLUMN id RESTART WITH 10;
-ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 10;
+ALTER TABLE obras_sociales ALTER COLUMN id RESTART WITH 20;
+ALTER TABLE especialidades ALTER COLUMN id RESTART WITH 20;
+ALTER TABLE sedes ALTER COLUMN id RESTART WITH 20;
+ALTER TABLE profesionales ALTER COLUMN id RESTART WITH 20;
+ALTER TABLE pacientes ALTER COLUMN id RESTART WITH 20;
+ALTER TABLE turnos ALTER COLUMN id RESTART WITH 20;
+ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 20;

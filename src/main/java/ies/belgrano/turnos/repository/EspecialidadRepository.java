@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface EspecialidadRepository extends JpaRepository<Especialidad, Long> {
     Optional<Especialidad> findByNombreIgnoreCase(String nombre);
+    boolean existsByNombreIgnoreCase(String nombre);
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Long id);
 }

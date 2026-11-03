@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,12 +40,30 @@ public class SedeController {
         // 1. Llamamos a nuestro servicio para que nos traiga la lista de sedes.
         List<SedeDTO> sedes = sedeService.listarSedes();
 
-        // Si la lista está vacía,la respuesta es el código 204 y sin cuerpo.
+        // Si la lista está vacía, la respuesta es el código 204 y sin cuerpo.
         if (sedes.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
         // 3. Si la lista tiene elementos, respondemos con un código 200 (ok) 
+        return ResponseEntity.ok(sedes);
+    }
+
+    // NUEVO ENDPOINT: Buscar sedes dinámicamente por la agenda del médico
+    @GetMapping("/profesional/{profesionalId}")
+    @Operation(summary = "Listar sedes por profesional", description = "Retorna las sedes donde atiende un profesional específico según sus turnos programados.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),
+            @ApiResponse(responseCode = "204", description = "No se encontraron sedes para este profesional")
+    })
+    public ResponseEntity<List<SedeDTO>> listarSedesPorProfesional(@PathVariable Long profesionalId) {
+        
+        List<SedeDTO> sedes = sedeService.obtenerSedesPorProfesional(profesionalId);
+
+        if (sedes.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
         return ResponseEntity.ok(sedes);
     }
 }

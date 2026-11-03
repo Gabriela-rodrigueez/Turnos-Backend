@@ -6,4 +6,6 @@ import java.util.List;
 public interface SedeService {
     // método que devuelve una lista de SedeDTO.
     List<SedeDTO> listarSedes();
+
+    List<SedeDTO> listarSedesPorProfesional(Long profesionalId);
 }

@@ -3,11 +3,13 @@ package ies.belgrano.turnos.controller;
 import ies.belgrano.turnos.dto.SedeDTO;
 import ies.belgrano.turnos.service.SedeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,6 +47,25 @@ public class SedeController {
         }
 
         // 3. Si la lista tiene elementos, respondemos con un código 200 (ok) 
+        return ResponseEntity.ok(sedes);
+    }
+
+    @GetMapping("/profesional/{profesionalId}")
+    @Operation(summary = "Listar sedes de un profesional médico",
+               description = "Retorna las sedes hospitalarias donde el profesional médico tiene turnos o agenda asignada. Si no hay registros, retorna 204 No Content.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de sedes del profesional obtenida exitosamente"),
+            @ApiResponse(responseCode = "204", description = "No se encontraron sedes asociadas al profesional (Cuerpo vacío)")
+    })
+    public ResponseEntity<List<SedeDTO>> listarSedesPorProfesional(
+            @Parameter(description = "ID del profesional médico")
+            @PathVariable Long profesionalId) {
+        List<SedeDTO> sedes = sedeService.listarSedesPorProfesional(profesionalId);
+
+        if (sedes.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
         return ResponseEntity.ok(sedes);
     }
 }
